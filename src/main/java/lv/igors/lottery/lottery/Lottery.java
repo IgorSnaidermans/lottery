@@ -21,9 +21,4 @@ public class Lottery {
     private LocalDateTime startTimeStamp;
     private LocalDateTime endTimeStamp;
     private String title;
-
-    public void addCode(Code code){
-        codes.add(code);
-    }
-
 }
