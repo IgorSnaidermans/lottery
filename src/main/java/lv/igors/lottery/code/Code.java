@@ -8,7 +8,7 @@ import lombok.*;
 @EqualsAndHashCode
 @ToString
 public class Code {
-    String code;
+    Long lotteryId;
+    String participatingCode;
     String ownerEmail;
-    String lotteryId;
 }

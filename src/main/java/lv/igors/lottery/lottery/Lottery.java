@@ -15,7 +15,7 @@ public class Lottery {
     private boolean active;
     private int limit;
     private int participants;
-    private String winnerCodeId;
+    private String winnerCode;
     private LocalDateTime startTimeStamp;
     private LocalDateTime endTimeStamp;
     private String title;

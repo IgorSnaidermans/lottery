@@ -1,6 +1,7 @@
 package lv.igors.lottery.lottery;
 
 import lv.igors.lottery.code.Code;
+import lv.igors.lottery.code.CodeException;
 import lv.igors.lottery.code.CodeService;
 import org.springframework.stereotype.Service;
 
@@ -9,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-//todo Exception and enum with errors.
+//todo enum with errors.
 
 @Service
 public class LotteryService {
@@ -24,7 +25,7 @@ public class LotteryService {
     public void newLottery(String title, int limit) throws LotteryException {
         LocalDateTime currentTimeStamp = LocalDateTime.now();
 
-        if (lotteryDAO.findByTitle().isPresent()) {
+        if (lotteryDAO.findByTitle(title).isPresent()) {
             throw new LotteryException("This lottery title already exist");
         }
 
@@ -41,11 +42,11 @@ public class LotteryService {
     public void registerCode(Long id, Code code) throws LotteryException {
         Lottery lottery = getLottery(id);
 
-        if(!lottery.isActive() || lottery.getParticipants()==lottery.getLimit()) /*todo check for same code*/ {
+        if (!lottery.isActive() || lottery.getParticipants() == lottery.getLimit()) /*todo check for same code*/ {
             throw new LotteryException("This lottery is still not started");
         }
 
-        //todo lottery service
+        //todo code service
     }
 
     public void stopRegistration(Long id) throws LotteryException {
@@ -57,23 +58,29 @@ public class LotteryService {
     public String chooseWinner(Long id) throws LotteryException {
         Lottery lottery = getLottery(id);
 
-        if (lottery.isActive() || lottery.getWinnerCodeId().equals("")) {
+        if (!lottery.isActive() || lottery.getWinnerCode().equals("")) {
             Random winnerChooser = new Random();
-            List<Code> participatingCodes = codeService.getCodesWithLotteryId(id);
+            List<Code> participatingCodes = codeService.getAllCodesByLotteryId(id);
             int winnerCodeInList = winnerChooser.nextInt(lottery.getLimit());
-            return participatingCodes.get(winnerCodeInList).getCode();
-        }else {
+            return participatingCodes.get(winnerCodeInList).getParticipatingCode();
+        } else if (lottery.isActive()) {
             throw new LotteryException("To choose winner, registration should be stopped");
+        } else if (!lottery.getWinnerCode().equals("")) {
+            throw new LotteryException("The winner is already chosen");
         }
-
-        //todo winner is already chosen
+        return "";
     }
 
-    public boolean getWinnerStatus(Long id, String requestedCode, String userEmail) throws LotteryException {
-        Lottery lottery = getLottery(id);
+    public boolean getWinnerStatus(Code requestedCode) throws LotteryException, CodeException {
+        Lottery lottery = getLottery(requestedCode.getLotteryId());
 
-        //todo equal code with parameters
-        return false;
+        String lotteryWinningCode = lottery.getWinnerCode();
+
+        if (lottery.getWinnerCode().equals("")) {
+            throw new LotteryException("The winner is not chosen still");
+        }
+
+        return codeService.checkWinnerCode(requestedCode, lotteryWinningCode);
     }
 
     public List<Lottery> getAllLotteries() {

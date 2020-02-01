@@ -8,6 +8,7 @@ import lombok.*;
 @EqualsAndHashCode
 @ToString
 public class User {
+    //todo email validation
     String email;
     //todo from 21 age
     int age;
