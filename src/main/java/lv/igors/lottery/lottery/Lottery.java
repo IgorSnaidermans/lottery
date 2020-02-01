@@ -1,11 +1,9 @@
 package lv.igors.lottery.lottery;
 
 import lombok.*;
-import lv.igors.lottery.code.Code;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+
 
 @Builder
 @Getter
