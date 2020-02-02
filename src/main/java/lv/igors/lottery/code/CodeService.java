@@ -1,6 +1,5 @@
 package lv.igors.lottery.code;
 
-import lv.igors.lottery.lottery.Lottery;
 import lv.igors.lottery.lottery.LotteryException;
 import lv.igors.lottery.lottery.LotteryService;
 import org.springframework.stereotype.Service;
@@ -15,6 +14,18 @@ public class CodeService {
 
     public CodeService(CodeDAO codeDAO, LotteryService lotteryService) {
         this.codeDAO = codeDAO;
+    }
+
+    public void addCode(Code code) throws LotteryException {
+        if(!findSimilarCodes(code.participatingCode)){
+            codeDAO.save(code);
+        }else{
+            throw new LotteryException("Code already exist");
+        }
+    }
+
+    private boolean findSimilarCodes(String participatingCode) {
+        return codeDAO.findCodeByParticipatingCode(participatingCode).isEmpty();
     }
 
     public boolean checkWinnerCode(Code code, String lotteryWinningCode) throws CodeException {

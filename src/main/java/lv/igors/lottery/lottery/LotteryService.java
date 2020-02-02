@@ -39,14 +39,14 @@ public class LotteryService {
         lotteryDAO.save(lottery);
     }
 
-    public void registerCode(Long id, Code code) throws LotteryException {
-        Lottery lottery = getLottery(id);
+    public void registerCode(Code code) throws LotteryException {
+        Lottery lottery = getLottery(code.getLotteryId());
 
-        if (!lottery.isActive() || lottery.getParticipants() == lottery.getLimit()) /*todo check for same code*/ {
+        if (!lottery.isActive() || lottery.getParticipants() == lottery.getLimit()){
             throw new LotteryException("This lottery is still not started");
         }
 
-        //todo code service
+        codeService.addCode(code);
     }
 
     public void stopRegistration(Long id) throws LotteryException {
