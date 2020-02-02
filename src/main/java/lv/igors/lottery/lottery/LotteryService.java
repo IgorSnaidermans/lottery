@@ -22,7 +22,7 @@ public class LotteryService {
         this.codeService = codeService;
     }
 
-    public StatusResponse newLottery(String title, int limit){
+    public StatusResponse newLottery(String title, int limit) {
         LocalDateTime currentTimeStamp = LocalDateTime.now();
 
         if (lotteryDAO.findByTitle(title).isPresent()) {
@@ -50,10 +50,15 @@ public class LotteryService {
     public StatusResponse registerCode(RegistrationDTO registrationDTO) throws LotteryException {
         Lottery lottery = getLottery(registrationDTO.getLotteryId());
 
-        if (!lottery.isActive() || lottery.getParticipants() >= lottery.getLimit()){
+        if (!lottery.isActive()) {
             return StatusResponse.builder()
                     .status("Fail")
                     .reason("Registration is not started")
+                    .build();
+        } else if (lottery.getParticipants() >= lottery.getLimit()) {
+            return StatusResponse.builder()
+                    .status("Fail")
+                    .reason("Too many participants")
                     .build();
         }
 
@@ -69,38 +74,78 @@ public class LotteryService {
                 .build();
     }
 
-    public void stopRegistration(Long id) throws LotteryException {
+    public StatusResponse stopRegistration(Long id) throws LotteryException {
         Lottery lottery = getLottery(id);
 
-        lottery.setActive(false);
+        if (lottery.isActive()) {
+            lottery.setActive(false);
+            return StatusResponse.builder()
+                    .status("OK")
+                    .build();
+        }else {
+            return StatusResponse.builder()
+                    .status("FAIL")
+                    .reason("Lottery is already stopped")
+                    .build();
+        }
     }
 
-    public String chooseWinner(Long id) throws LotteryException {
+    public StatusResponse chooseWinner(Long id) throws LotteryException {
         Lottery lottery = getLottery(id);
 
-        if (!lottery.isActive() || lottery.getWinnerCode().equals("")) {
+        if (!lottery.isActive() && null == lottery.getWinnerCode()) {
             Random winnerChooser = new Random();
             List<Code> participatingCodes = codeService.getAllCodesByLotteryId(id);
             int winnerCodeInList = winnerChooser.nextInt(lottery.getLimit());
-            return participatingCodes.get(winnerCodeInList).getParticipatingCode();
+
+            String winnerCode = participatingCodes.get(winnerCodeInList).getParticipatingCode();
+            return StatusResponse.builder()
+                    .status("OK")
+                    .winnerCode(winnerCode)
+                    .build();
         } else if (lottery.isActive()) {
-            throw new LotteryException("To choose winner, registration should be stopped");
-        } else if (!lottery.getWinnerCode().equals("")) {
-            throw new LotteryException("The winner is already chosen");
+            return StatusResponse.builder()
+                    .status("FAIL")
+                    .reason("Lottery is active")
+                    .build();
+        } else if (null != lottery.getWinnerCode()) {
+            return StatusResponse.builder()
+                    .status("FAIL")
+                    .reason("Lottery is finished")
+                    .build();
         }
-        return "";
+        return StatusResponse.builder()
+                .status("FAIL")
+                .reason("Unexpected error")
+                .build();
     }
 
-    public boolean getWinnerStatus(Code requestedCode) throws LotteryException, CodeException {
-        Lottery lottery = getLottery(requestedCode.getLotteryId());
+    public StatusResponse getWinnerStatus(Code requestedCode) {
 
-        String lotteryWinningCode = lottery.getWinnerCode();
+        try {
+            Lottery lottery = getLottery(requestedCode.getLotteryId());
 
-        if (lottery.getWinnerCode().equals("")) {
-            throw new LotteryException("The winner is not chosen still");
+            String lotteryWinningCode = lottery.getWinnerCode();
+
+            if (null == lottery.getWinnerCode()) {
+                return StatusResponse.builder()
+                        .status("PENDING")
+                        .build();
+            }
+            if (codeService.checkWinnerCode(requestedCode, lotteryWinningCode)) {
+                return StatusResponse.builder()
+                        .status("WIN")
+                        .build();
+            } else {
+                return StatusResponse.builder()
+                        .status("LOSE")
+                        .build();
+            }
+        } catch (CodeException | LotteryException e) {
+            return StatusResponse.builder()
+                    .status("ERROR" + e.getMessage())
+                    .build();
         }
-
-        return codeService.checkWinnerCode(requestedCode, lotteryWinningCode);
     }
 
     public List<Lottery> getAllLotteries() {
@@ -115,7 +160,7 @@ public class LotteryService {
 
     public Lottery getLottery(Long id) throws LotteryException {
 
-        Optional<Lottery> possibleLottery = lotteryDAO.findById(id.toString());
+        Optional<Lottery> possibleLottery = lotteryDAO.findById(id);
 
         if (possibleLottery.isPresent()) {
             return possibleLottery.get();

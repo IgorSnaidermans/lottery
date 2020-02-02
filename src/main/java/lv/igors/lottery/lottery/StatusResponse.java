@@ -11,4 +11,5 @@ public class StatusResponse {
     private String status;
     private Long id;
     private String reason;
+    private String winnerCode;
 }

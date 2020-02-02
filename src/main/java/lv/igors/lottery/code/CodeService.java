@@ -31,7 +31,6 @@ public class CodeService {
     public boolean checkWinnerCode(Code code, String lotteryWinningCode) throws CodeException {
         Code winnerCode = getCodeByParticipatingCode(lotteryWinningCode);
 
-
         if(winnerCode.equals(code)) {
             return true;
         }else{
