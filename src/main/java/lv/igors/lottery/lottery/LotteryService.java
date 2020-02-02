@@ -22,11 +22,14 @@ public class LotteryService {
         this.codeService = codeService;
     }
 
-    public void newLottery(String title, int limit) throws LotteryException {
+    public StatusResponse newLottery(String title, int limit){
         LocalDateTime currentTimeStamp = LocalDateTime.now();
 
         if (lotteryDAO.findByTitle(title).isPresent()) {
-            throw new LotteryException("This lottery title already exist");
+            return StatusResponse.builder()
+                    .status("Fail")
+                    .reason("This lottery title already exist")
+                    .build();
         }
 
         Lottery lottery = Lottery.builder()
@@ -37,16 +40,33 @@ public class LotteryService {
                 .build();
 
         lotteryDAO.save(lottery);
+
+        return StatusResponse.builder()
+                .id(lottery.getId())
+                .status("OK")
+                .build();
     }
 
-    public void registerCode(Code code) throws LotteryException {
-        Lottery lottery = getLottery(code.getLotteryId());
+    public StatusResponse registerCode(RegistrationDTO registrationDTO) throws LotteryException {
+        Lottery lottery = getLottery(registrationDTO.getLotteryId());
 
-        if (!lottery.isActive() || lottery.getParticipants() == lottery.getLimit()){
-            throw new LotteryException("This lottery is still not started");
+        if (!lottery.isActive() || lottery.getParticipants() >= lottery.getLimit()){
+            return StatusResponse.builder()
+                    .status("Fail")
+                    .reason("Registration is not started")
+                    .build();
         }
 
-        codeService.addCode(code);
+        codeService.addCode(Code.builder()
+                .lotteryId(registrationDTO.getLotteryId())
+                .ownerEmail(registrationDTO.getEmail())
+                .participatingCode(registrationDTO.getCode())
+                .build());
+
+        return StatusResponse.builder()
+                .id(lottery.getId())
+                .status("OK")
+                .build();
     }
 
     public void stopRegistration(Long id) throws LotteryException {

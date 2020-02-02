@@ -1,22 +1,21 @@
-package lv.igors.lottery.user;
+package lv.igors.lottery.lottery;
 
 import lombok.*;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
+
 
 @Builder
 @Getter
 @Setter
 @EqualsAndHashCode
 @ToString
-public class User {
+public class RegistrationDTO {
+    private Long lotteryId;
     @Email
-    @NotBlank
-    String email;
-
+    private String email;
     @Min(21)
-    @NotBlank
-    int age;
+    private Byte age;
+    private String code;
 }
