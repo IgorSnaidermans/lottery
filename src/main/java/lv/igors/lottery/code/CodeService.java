@@ -1,7 +1,6 @@
 package lv.igors.lottery.code;
 
-import lv.igors.lottery.lottery.LotteryException;
-import lv.igors.lottery.lottery.LotteryService;
+import lv.igors.lottery.StatusResponse;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -12,46 +11,76 @@ import java.util.Optional;
 public class CodeService {
     private CodeDAO codeDAO;
 
-    public CodeService(CodeDAO codeDAO, LotteryService lotteryService) {
+    public CodeService(CodeDAO codeDAO) {
         this.codeDAO = codeDAO;
     }
 
-    public void addCode(Code code) throws LotteryException {
-        if(!findSimilarCodes(code.participatingCode)){
+    public StatusResponse addCode(Code code) {
+        if (!findSimilarCodes(code.getParticipatingCode())) {
             codeDAO.save(code);
-        }else{
-            throw new LotteryException("Code already exist");
+            return StatusResponse.builder()
+                    .status("OK")
+                    .build();
         }
+        return StatusResponse.builder()
+                .status("Fail")
+                .reason("Code already exists")
+                .build();
     }
 
-    private boolean findSimilarCodes(String participatingCode) {
-        return codeDAO.findCodeByParticipatingCode(participatingCode).isEmpty();
-    }
-
-    public boolean checkWinnerCode(Code code, String lotteryWinningCode) throws CodeException {
-        Code winnerCode = getCodeByParticipatingCode(lotteryWinningCode);
-
-        if(winnerCode.equals(code)) {
-            return true;
-        }else{
-            throw new CodeException("Invalid input data or the code is not yours.");
-        }
-    }
-
-    public List<Code> getAllCodesByLotteryId(Long id) {
-
-        return new ArrayList<>(codeDAO.findAllByLotteryId(id.toString()));
-    }
-
-    public Code getCodeByParticipatingCode(String code) throws CodeException {
+    public boolean findSimilarCodes(String code) {
         Optional<Code> possibleCode = codeDAO.findCodeByParticipatingCode(code);
+
+        return possibleCode.isPresent();
+    }
+
+    public StatusResponse checkWinnerCode(Code code, String lotteryWinningCode) {
+        Code winnerCode;
+
+        try {
+            if (!checkCodeOwner(code)) {
+                return StatusResponse.builder()
+                        .status("Fail")
+                        .reason("The code is not yours")
+                        .build();
+            }
+            winnerCode = getCodeByParticipatingCode(lotteryWinningCode);
+        } catch (CodeException e) {
+            return StatusResponse.builder()
+                    .status("Fail")
+                    .reason(e.getMessage())
+                    .build();
+        }
+
+        if (winnerCode.equals(code)) {
+            return StatusResponse.builder()
+                    .status("WIN")
+                    .build();
+        } else {
+            return StatusResponse.builder()
+                    .status("LOSE")
+                    .build();
+        }
+
+    }
+
+    private boolean checkCodeOwner(Code code) throws CodeException {
+        String requestedCodeOwnerEmail = getCodeByParticipatingCode(code.getParticipatingCode())
+                .getOwnerEmail();
+        return requestedCodeOwnerEmail.equals(code.getOwnerEmail());
+    }
+
+    public Code getCodeByParticipatingCode(String lotteryWinningCode) throws CodeException {
+        Optional<Code> possibleCode = codeDAO.findCodeByParticipatingCode(lotteryWinningCode);
 
         if (possibleCode.isPresent()) {
             return possibleCode.get();
         } else {
-            throw new CodeException("Invalid input data or the code is not yours.");
+            throw new CodeException("Code doesnt exists");
         }
     }
 
-
+    public List<Code> getAllCodesByLotteryId(Long id) {
+        return new ArrayList<>(codeDAO.findAllByLotteryId(id.toString()));
+    }
 }

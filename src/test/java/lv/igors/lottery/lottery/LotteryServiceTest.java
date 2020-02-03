@@ -1,18 +1,14 @@
 package lv.igors.lottery.lottery;
 
+import lv.igors.lottery.StatusResponse;
 import lv.igors.lottery.code.Code;
-import lv.igors.lottery.code.CodeException;
 import lv.igors.lottery.code.CodeService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.Spy;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +16,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class LotteryServiceTest {
@@ -68,7 +65,7 @@ class LotteryServiceTest {
     }
 
     @Test
-    void newLotteryTitle_ShouldAlreadyExist(){
+    void newLotteryTitle_ShouldAlreadyExist() {
         final String TITLE = "Title";
         Lottery lottery = Lottery.builder().title(TITLE).build();
 
@@ -83,8 +80,16 @@ class LotteryServiceTest {
 
     @Test
     void registerCode_ShouldPass() throws LotteryException {
+        when(lotteryDAO.findById(registrationDTO.getLotteryId()))
+                .thenReturn(Optional.ofNullable(validLottery));
 
-        when(lotteryDAO.findById(registrationDTO.getLotteryId())).thenReturn(Optional.ofNullable(validLottery));
+        when(codeService.addCode(Code.builder()
+                .participatingCode(registrationDTO.getCode())
+                .lotteryId(registrationDTO.getLotteryId())
+                .ownerEmail(registrationDTO.getEmail())
+                .build())).thenReturn(StatusResponse.builder()
+                .status("OK")
+                .build());
 
         StatusResponse statusResponse = lotteryService.registerCode(registrationDTO);
 
@@ -125,7 +130,7 @@ class LotteryServiceTest {
 
 
     @Test
-    void getWinnerStatus_ShouldReturnWin() throws CodeException {
+    void getWinnerStatus_ShouldReturnWin() {
         Code code = Code.builder()
                 .participatingCode(registrationDTO.getCode())
                 .lotteryId(registrationDTO.getLotteryId())
@@ -133,7 +138,9 @@ class LotteryServiceTest {
                 .build();
         validLottery.setWinnerCode(registrationDTO.getCode());
 
-        when(codeService.checkWinnerCode(code, registrationDTO.getCode())).thenReturn(true);
+        when(codeService.checkWinnerCode(code, registrationDTO.getCode())).thenReturn(StatusResponse.builder()
+                .status("WIN")
+                .build());
         when(lotteryDAO.findById(registrationDTO.getLotteryId())).thenReturn(Optional.ofNullable(validLottery));
 
         StatusResponse statusResponse = lotteryService.getWinnerStatus(code);
@@ -142,7 +149,7 @@ class LotteryServiceTest {
     }
 
     @Test
-    void getWinnerStatus_ShouldReturnLose() throws CodeException {
+    void getWinnerStatus_ShouldReturnLose() {
         Code code = Code.builder()
                 .participatingCode("123")
                 .lotteryId(registrationDTO.getLotteryId())
@@ -150,16 +157,18 @@ class LotteryServiceTest {
                 .build();
         validLottery.setWinnerCode(registrationDTO.getCode());
 
-        when(codeService.checkWinnerCode(code, registrationDTO.getCode())).thenReturn(false);
+        when(codeService.checkWinnerCode(code, registrationDTO.getCode())).thenReturn(StatusResponse.builder()
+                .status("Lose")
+                .build());
         when(lotteryDAO.findById(registrationDTO.getLotteryId())).thenReturn(Optional.ofNullable(validLottery));
 
         StatusResponse statusResponse = lotteryService.getWinnerStatus(code);
 
-        assertEquals("LOSE", statusResponse.getStatus());
+        assertEquals("Lose", statusResponse.getStatus());
     }
 
     @Test
-    void getWinnerStatus_ShouldReturnPending(){
+    void getWinnerStatus_ShouldReturnPending() {
         Code code = Code.builder()
                 .participatingCode(registrationDTO.getCode())
                 .lotteryId(registrationDTO.getLotteryId())
@@ -187,7 +196,7 @@ class LotteryServiceTest {
                 .ownerEmail(registrationDTO.getEmail())
                 .build();
 
-        for(int i=0;i<validLottery.getParticipants();i++){
+        for (int i = 0; i < validLottery.getParticipants(); i++) {
             spiedList.add(code);
         }
 

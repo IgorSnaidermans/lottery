@@ -1,4 +1,4 @@
-package lv.igors.lottery.lottery;
+package lv.igors.lottery;
 
 import lombok.*;
 

@@ -1,7 +1,7 @@
 package lv.igors.lottery.lottery;
 
+import lv.igors.lottery.StatusResponse;
 import lv.igors.lottery.code.Code;
-import lv.igors.lottery.code.CodeException;
 import lv.igors.lottery.code.CodeService;
 import org.springframework.stereotype.Service;
 
@@ -62,16 +62,12 @@ public class LotteryService {
                     .build();
         }
 
-        codeService.addCode(Code.builder()
-                .lotteryId(registrationDTO.getLotteryId())
-                .ownerEmail(registrationDTO.getEmail())
-                .participatingCode(registrationDTO.getCode())
-                .build());
+            return codeService.addCode(Code.builder()
+                    .lotteryId(registrationDTO.getLotteryId())
+                    .ownerEmail(registrationDTO.getEmail())
+                    .participatingCode(registrationDTO.getCode())
+                    .build());
 
-        return StatusResponse.builder()
-                .id(lottery.getId())
-                .status("OK")
-                .build();
     }
 
     public StatusResponse stopRegistration(Long id) throws LotteryException {
@@ -82,7 +78,7 @@ public class LotteryService {
             return StatusResponse.builder()
                     .status("OK")
                     .build();
-        }else {
+        } else {
             return StatusResponse.builder()
                     .status("FAIL")
                     .reason("Lottery is already stopped")
@@ -132,18 +128,10 @@ public class LotteryService {
                         .status("PENDING")
                         .build();
             }
-            if (codeService.checkWinnerCode(requestedCode, lotteryWinningCode)) {
-                return StatusResponse.builder()
-                        .status("WIN")
-                        .build();
-            } else {
-                return StatusResponse.builder()
-                        .status("LOSE")
-                        .build();
-            }
-        } catch (CodeException | LotteryException e) {
+            return codeService.checkWinnerCode(requestedCode, lotteryWinningCode);
+        } catch (LotteryException e) {
             return StatusResponse.builder()
-                    .status("ERROR" + e.getMessage())
+                    .status("ERROR " + e.getMessage())
                     .build();
         }
     }
