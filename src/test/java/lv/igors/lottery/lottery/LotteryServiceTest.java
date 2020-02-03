@@ -1,6 +1,6 @@
 package lv.igors.lottery.lottery;
 
-import lv.igors.lottery.StatusResponse;
+import lv.igors.lottery.statusResponse.StatusResponse;
 import lv.igors.lottery.code.Code;
 import lv.igors.lottery.code.CodeService;
 import org.junit.jupiter.api.BeforeEach;
@@ -125,7 +125,7 @@ class LotteryServiceTest {
         StatusResponse statusResponse = lotteryService.registerCode(registrationDTO);
 
         assertEquals("Fail", statusResponse.getStatus());
-        assertEquals("Registration is not started", statusResponse.getReason());
+        assertEquals("Registration is inactive", statusResponse.getReason());
     }
 
 
@@ -216,8 +216,8 @@ class LotteryServiceTest {
 
         StatusResponse statusResponse = lotteryService.chooseWinner(validLottery.getId());
 
-        assertEquals("FAIL", statusResponse.getStatus());
-        assertEquals("Lottery is active", statusResponse.getReason());
+        assertEquals("Fail", statusResponse.getStatus());
+        assertEquals("Registration is active", statusResponse.getReason());
     }
 
     @Test
@@ -228,7 +228,7 @@ class LotteryServiceTest {
 
         StatusResponse statusResponse = lotteryService.chooseWinner(validLottery.getId());
 
-        assertEquals("FAIL", statusResponse.getStatus());
+        assertEquals("Fail", statusResponse.getStatus());
         assertEquals("Lottery is finished", statusResponse.getReason());
     }
 }

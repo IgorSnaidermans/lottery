@@ -1,7 +1,9 @@
 package lv.igors.lottery.code;
 
-import lv.igors.lottery.StatusResponse;
+import lv.igors.lottery.statusResponse.Responses;
+import lv.igors.lottery.statusResponse.StatusResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,12 +21,12 @@ public class CodeService {
         if (!findSimilarCodes(code.getParticipatingCode())) {
             codeDAO.save(code);
             return StatusResponse.builder()
-                    .status("OK")
+                    .status(Responses.OK.getResponse())
                     .build();
         }
         return StatusResponse.builder()
-                .status("Fail")
-                .reason("Code already exists")
+                .status(Responses.FAIL.getResponse())
+                .reason(Responses.CODE_EXIST.getResponse())
                 .build();
     }
 
@@ -40,25 +42,25 @@ public class CodeService {
         try {
             if (!checkCodeOwner(code)) {
                 return StatusResponse.builder()
-                        .status("Fail")
-                        .reason("The code is not yours")
+                        .status(Responses.FAIL.getResponse())
+                        .reason(Responses.CODE_FOREIGN_CODE.getResponse())
                         .build();
             }
             winnerCode = getCodeByParticipatingCode(lotteryWinningCode);
         } catch (CodeException e) {
             return StatusResponse.builder()
-                    .status("Fail")
+                    .status(Responses.FAIL.getResponse())
                     .reason(e.getMessage())
                     .build();
         }
 
         if (winnerCode.equals(code)) {
             return StatusResponse.builder()
-                    .status("WIN")
+                    .status(Responses.CODE_WIN.getResponse())
                     .build();
         } else {
             return StatusResponse.builder()
-                    .status("LOSE")
+                    .status(Responses.CODE_LOSE.getResponse())
                     .build();
         }
 
@@ -76,7 +78,7 @@ public class CodeService {
         if (possibleCode.isPresent()) {
             return possibleCode.get();
         } else {
-            throw new CodeException("Code doesnt exists");
+            throw new CodeException(Responses.CODE_NON_EXIST.getResponse());
         }
     }
 

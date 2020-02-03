@@ -1,6 +1,7 @@
 package lv.igors.lottery.lottery;
 
-import lv.igors.lottery.StatusResponse;
+import lv.igors.lottery.statusResponse.Responses;
+import lv.igors.lottery.statusResponse.StatusResponse;
 import lv.igors.lottery.code.Code;
 import lv.igors.lottery.code.CodeService;
 import org.springframework.stereotype.Service;
@@ -10,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-//todo enum with errors.
+//todo logger
 
 @Service
 public class LotteryService {
@@ -52,21 +53,22 @@ public class LotteryService {
 
         if (!lottery.isActive()) {
             return StatusResponse.builder()
-                    .status("Fail")
-                    .reason("Registration is not started")
+                    .status(Responses.FAIL.getResponse())
+                    .reason(Responses.LOTTERY_REGISTER_INACTIVE.getResponse())
                     .build();
         } else if (lottery.getParticipants() >= lottery.getLimit()) {
             return StatusResponse.builder()
-                    .status("Fail")
-                    .reason("Too many participants")
+                    .status(Responses.FAIL.getResponse())
+                    .reason(Responses.LOTTERY_EXCESS_PARTICIPANTS.getResponse())
                     .build();
         }
-
             return codeService.addCode(Code.builder()
                     .lotteryId(registrationDTO.getLotteryId())
                     .ownerEmail(registrationDTO.getEmail())
                     .participatingCode(registrationDTO.getCode())
                     .build());
+
+
 
     }
 
@@ -76,12 +78,12 @@ public class LotteryService {
         if (lottery.isActive()) {
             lottery.setActive(false);
             return StatusResponse.builder()
-                    .status("OK")
+                    .status(Responses.OK.getResponse())
                     .build();
         } else {
             return StatusResponse.builder()
-                    .status("FAIL")
-                    .reason("Lottery is already stopped")
+                    .status(Responses.FAIL.getResponse())
+                    .reason(Responses.LOTTERY_REGISTER_INACTIVE.getResponse())
                     .build();
         }
     }
@@ -96,23 +98,23 @@ public class LotteryService {
 
             String winnerCode = participatingCodes.get(winnerCodeInList).getParticipatingCode();
             return StatusResponse.builder()
-                    .status("OK")
+                    .status(Responses.OK.getResponse())
                     .winnerCode(winnerCode)
                     .build();
         } else if (lottery.isActive()) {
             return StatusResponse.builder()
-                    .status("FAIL")
-                    .reason("Lottery is active")
+                    .status(Responses.FAIL.getResponse())
+                    .reason(Responses.LOTTERY_REGISTER_ACTIVE.getResponse())
                     .build();
         } else if (null != lottery.getWinnerCode()) {
             return StatusResponse.builder()
-                    .status("FAIL")
-                    .reason("Lottery is finished")
+                    .status(Responses.FAIL.getResponse())
+                    .reason(Responses.LOTTERY_FINISHED.getResponse())
                     .build();
         }
         return StatusResponse.builder()
-                .status("FAIL")
-                .reason("Unexpected error")
+                .status(Responses.FAIL.getResponse())
+                .reason(Responses.UNKNOWN_ERROR.getResponse())
                 .build();
     }
 
@@ -125,13 +127,13 @@ public class LotteryService {
 
             if (null == lottery.getWinnerCode()) {
                 return StatusResponse.builder()
-                        .status("PENDING")
+                        .status(Responses.LOTTERY_STATUS_PENDING.getResponse())
                         .build();
             }
             return codeService.checkWinnerCode(requestedCode, lotteryWinningCode);
         } catch (LotteryException e) {
             return StatusResponse.builder()
-                    .status("ERROR " + e.getMessage())
+                    .status(e.getMessage())
                     .build();
         }
     }
@@ -153,7 +155,7 @@ public class LotteryService {
         if (possibleLottery.isPresent()) {
             return possibleLottery.get();
         } else {
-            throw new LotteryException("Lottery with id #" + id + " does not exist");
+            throw new LotteryException(Responses.LOTTERY_NON_EXIST.getResponse());
         }
     }
 }

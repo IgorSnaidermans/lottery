@@ -1,4 +1,4 @@
-package lv.igors.lottery;
+package lv.igors.lottery.statusResponse;
 
 import lombok.*;
 
