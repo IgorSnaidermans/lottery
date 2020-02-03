@@ -4,6 +4,8 @@ import lv.igors.lottery.statusResponse.Responses;
 import lv.igors.lottery.statusResponse.StatusResponse;
 import lv.igors.lottery.code.Code;
 import lv.igors.lottery.code.CodeService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -15,6 +17,7 @@ import java.util.Random;
 
 @Service
 public class LotteryService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(LotteryService.class);
     private LotteryDAO lotteryDAO;
     private CodeService codeService;
 
@@ -52,35 +55,41 @@ public class LotteryService {
         Lottery lottery = getLottery(registrationDTO.getLotteryId());
 
         if (!lottery.isActive()) {
+            LOGGER.warn("Unsuccessful code register due to lottery inactive from " + registrationDTO.getEmail() +
+                    ". Lottery #" + registrationDTO.getLotteryId());
             return StatusResponse.builder()
                     .status(Responses.FAIL.getResponse())
                     .reason(Responses.LOTTERY_REGISTER_INACTIVE.getResponse())
                     .build();
         } else if (lottery.getParticipants() >= lottery.getLimit()) {
+            LOGGER.warn("Unsuccessful code register due to excess participants from " + registrationDTO.getEmail() +
+                    ". Lottery #" + registrationDTO.getLotteryId());
             return StatusResponse.builder()
                     .status(Responses.FAIL.getResponse())
                     .reason(Responses.LOTTERY_EXCESS_PARTICIPANTS.getResponse())
                     .build();
         }
-            return codeService.addCode(Code.builder()
-                    .lotteryId(registrationDTO.getLotteryId())
-                    .ownerEmail(registrationDTO.getEmail())
-                    .participatingCode(registrationDTO.getCode())
-                    .build());
 
-
-
+        LOGGER.info("Code registered from " + registrationDTO.getEmail() + ".Code:"
+                + registrationDTO.getCode() + ". Lottery #" + lottery.getId());
+        return codeService.addCode(Code.builder()
+                .lotteryId(registrationDTO.getLotteryId())
+                .ownerEmail(registrationDTO.getEmail())
+                .participatingCode(registrationDTO.getCode())
+                .build());
     }
 
     public StatusResponse stopRegistration(Long id) throws LotteryException {
         Lottery lottery = getLottery(id);
 
         if (lottery.isActive()) {
+            LOGGER.info("Lottery #" +lottery.getId() + " stopped");
             lottery.setActive(false);
             return StatusResponse.builder()
                     .status(Responses.OK.getResponse())
                     .build();
         } else {
+            LOGGER.warn("Unsuccessful lottery register stop due to already stopped. Lottery #" + lottery.getId());
             return StatusResponse.builder()
                     .status(Responses.FAIL.getResponse())
                     .reason(Responses.LOTTERY_REGISTER_INACTIVE.getResponse())
@@ -97,21 +106,25 @@ public class LotteryService {
             int winnerCodeInList = winnerChooser.nextInt(lottery.getLimit());
 
             String winnerCode = participatingCodes.get(winnerCodeInList).getParticipatingCode();
+            LOGGER.info("Lottery #" + lottery.getId() + ". Chosen winner code: " + winnerCode);
             return StatusResponse.builder()
                     .status(Responses.OK.getResponse())
                     .winnerCode(winnerCode)
                     .build();
         } else if (lottery.isActive()) {
+            LOGGER.warn("Unsuccessful choose winner due to registration active. Lottery #" + lottery.getId());
             return StatusResponse.builder()
                     .status(Responses.FAIL.getResponse())
                     .reason(Responses.LOTTERY_REGISTER_ACTIVE.getResponse())
                     .build();
         } else if (null != lottery.getWinnerCode()) {
+            LOGGER.warn("Unsuccessful choose winner due to winner chosen. Lottery #" + lottery.getId());
             return StatusResponse.builder()
                     .status(Responses.FAIL.getResponse())
                     .reason(Responses.LOTTERY_FINISHED.getResponse())
                     .build();
         }
+        LOGGER.error("Unsuccessful choose winner due to unexpected error. Lottery #" + lottery.getId());
         return StatusResponse.builder()
                 .status(Responses.FAIL.getResponse())
                 .reason(Responses.UNKNOWN_ERROR.getResponse())
@@ -122,14 +135,17 @@ public class LotteryService {
 
         try {
             Lottery lottery = getLottery(requestedCode.getLotteryId());
-
             String lotteryWinningCode = lottery.getWinnerCode();
 
             if (null == lottery.getWinnerCode()) {
+                LOGGER.info("Responded winner is pending. Lottery #" + lottery.getId() +
+                        ". To " + requestedCode.getOwnerEmail());
                 return StatusResponse.builder()
                         .status(Responses.LOTTERY_STATUS_PENDING.getResponse())
                         .build();
             }
+            LOGGER.info("Responded winner status. Lottery #" + lottery.getId() +
+                    ". To " + requestedCode.getOwnerEmail());
             return codeService.checkWinnerCode(requestedCode, lotteryWinningCode);
         } catch (LotteryException e) {
             return StatusResponse.builder()
@@ -155,6 +171,7 @@ public class LotteryService {
         if (possibleLottery.isPresent()) {
             return possibleLottery.get();
         } else {
+            LOGGER.warn("Could not find lottery #" + id);
             throw new LotteryException(Responses.LOTTERY_NON_EXIST.getResponse());
         }
     }

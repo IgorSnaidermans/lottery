@@ -1,7 +1,10 @@
 package lv.igors.lottery.code;
 
+import lv.igors.lottery.lottery.LotteryService;
 import lv.igors.lottery.statusResponse.Responses;
 import lv.igors.lottery.statusResponse.StatusResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.view.RedirectView;
 
@@ -11,6 +14,7 @@ import java.util.Optional;
 
 @Service
 public class CodeService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CodeService.class);
     private CodeDAO codeDAO;
 
     public CodeService(CodeDAO codeDAO) {
@@ -19,11 +23,13 @@ public class CodeService {
 
     public StatusResponse addCode(Code code) {
         if (!findSimilarCodes(code.getParticipatingCode())) {
+            LOGGER.info("Code saved " + code.toString());
             codeDAO.save(code);
             return StatusResponse.builder()
                     .status(Responses.OK.getResponse())
                     .build();
         }
+        LOGGER.warn("Unsuccessful code save due to already exist" + code.toString());
         return StatusResponse.builder()
                 .status(Responses.FAIL.getResponse())
                 .reason(Responses.CODE_EXIST.getResponse())
@@ -39,8 +45,11 @@ public class CodeService {
     public StatusResponse checkWinnerCode(Code code, String lotteryWinningCode) {
         Code winnerCode;
 
+        LOGGER.info("Checking winning status for" + code.toString());
+
         try {
             if (!checkCodeOwner(code)) {
+                LOGGER.warn("Foreign code was requested by " + code.toString());
                 return StatusResponse.builder()
                         .status(Responses.FAIL.getResponse())
                         .reason(Responses.CODE_FOREIGN_CODE.getResponse())
@@ -72,12 +81,13 @@ public class CodeService {
         return requestedCodeOwnerEmail.equals(code.getOwnerEmail());
     }
 
-    public Code getCodeByParticipatingCode(String lotteryWinningCode) throws CodeException {
-        Optional<Code> possibleCode = codeDAO.findCodeByParticipatingCode(lotteryWinningCode);
+    public Code getCodeByParticipatingCode(String code) throws CodeException {
+        Optional<Code> possibleCode = codeDAO.findCodeByParticipatingCode(code);
 
         if (possibleCode.isPresent()) {
             return possibleCode.get();
         } else {
+            LOGGER.warn("Could not find code " + code);
             throw new CodeException(Responses.CODE_NON_EXIST.getResponse());
         }
     }
