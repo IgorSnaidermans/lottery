@@ -4,10 +4,11 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
+//@EnableJpaRepositories
 public class LotteryApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(LotteryApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(LotteryApplication.class, args);
+    }
 
 }

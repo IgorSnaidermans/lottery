@@ -1,5 +1,7 @@
 package lv.igors.lottery.lottery;
 
+import lombok.RequiredArgsConstructor;
+import lv.igors.lottery.code.CodeDTO;
 import lv.igors.lottery.statusResponse.Responses;
 import lv.igors.lottery.statusResponse.StatusResponse;
 import lv.igors.lottery.code.Code;
@@ -13,18 +15,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-//todo logger
 
 @Service
+@RequiredArgsConstructor
 public class LotteryService {
     private static final Logger LOGGER = LoggerFactory.getLogger(LotteryService.class);
-    private LotteryDAO lotteryDAO;
-    private CodeService codeService;
-
-    public LotteryService(LotteryDAO lotteryDAO, CodeService codeService) {
-        this.lotteryDAO = lotteryDAO;
-        this.codeService = codeService;
-    }
+    private final LotteryDAO lotteryDAO;
+    private final CodeService codeService;
 
     public StatusResponse newLottery(String title, int limit) {
         LocalDateTime currentTimeStamp = LocalDateTime.now();
@@ -70,20 +67,24 @@ public class LotteryService {
                     .build();
         }
 
-        LOGGER.info("Code registered from " + registrationDTO.getEmail() + ".Code:"
-                + registrationDTO.getCode() + ". Lottery #" + lottery.getId());
-        return codeService.addCode(Code.builder()
+        CodeDTO codeDTO = CodeDTO.builder()
+                .code(registrationDTO.getCode())
+                .email(registrationDTO.getEmail())
                 .lotteryId(registrationDTO.getLotteryId())
-                .ownerEmail(registrationDTO.getEmail())
-                .participatingCode(registrationDTO.getCode())
-                .build());
+                .lotteryStartTimestamp(lottery.getStartTimeStamp())
+                .build();
+
+        LOGGER.info("Code registration from " + registrationDTO.getEmail() + ".Code:"
+                + registrationDTO.getCode() + ". Lottery #" + lottery.getId());
+
+        return codeService.addCode(codeDTO);
     }
 
-    public StatusResponse stopRegistration(Long id) throws LotteryException {
-        Lottery lottery = getLottery(id);
+    public StatusResponse stopRegistration(Long lotteryId) throws LotteryException {
+        Lottery lottery = getLottery(lotteryId);
 
         if (lottery.isActive()) {
-            LOGGER.info("Lottery #" +lottery.getId() + " stopped");
+            LOGGER.info("Lottery #" + lottery.getId() + " stopped");
             lottery.setActive(false);
             return StatusResponse.builder()
                     .status(Responses.OK.getResponse())
@@ -124,6 +125,7 @@ public class LotteryService {
                     .reason(Responses.LOTTERY_FINISHED.getResponse())
                     .build();
         }
+
         LOGGER.error("Unsuccessful choose winner due to unexpected error. Lottery #" + lottery.getId());
         return StatusResponse.builder()
                 .status(Responses.FAIL.getResponse())
@@ -131,22 +133,28 @@ public class LotteryService {
                 .build();
     }
 
-    public StatusResponse getWinnerStatus(Code requestedCode) {
-
+    public StatusResponse getWinnerStatus(RegistrationDTO registrationDTO) {
         try {
-            Lottery lottery = getLottery(requestedCode.getLotteryId());
+            Lottery lottery = getLottery(registrationDTO.getLotteryId());
             String lotteryWinningCode = lottery.getWinnerCode();
 
             if (null == lottery.getWinnerCode()) {
                 LOGGER.info("Responded winner is pending. Lottery #" + lottery.getId() +
-                        ". To " + requestedCode.getOwnerEmail());
+                        ". To " + registrationDTO.getEmail());
                 return StatusResponse.builder()
                         .status(Responses.LOTTERY_STATUS_PENDING.getResponse())
                         .build();
             }
+
+            CodeDTO codeDTO = CodeDTO.builder()
+                    .code(registrationDTO.getCode())
+                    .email(registrationDTO.getEmail())
+                    .lotteryStartTimestamp(lottery.getStartTimeStamp())
+                    .build();
+
             LOGGER.info("Responded winner status. Lottery #" + lottery.getId() +
-                    ". To " + requestedCode.getOwnerEmail());
-            return codeService.checkWinnerCode(requestedCode, lotteryWinningCode);
+                    ". To " + registrationDTO.getEmail());
+            return codeService.checkWinnerCode(codeDTO, lotteryWinningCode);
         } catch (LotteryException e) {
             return StatusResponse.builder()
                     .status(e.getMessage())

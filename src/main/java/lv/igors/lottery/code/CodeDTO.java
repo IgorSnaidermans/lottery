@@ -1,4 +1,5 @@
-package lv.igors.lottery.lottery;
+package lv.igors.lottery.code;
+
 
 import lombok.*;
 
@@ -6,17 +7,16 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 
-
 @Builder
 @Getter
 @Setter
 @EqualsAndHashCode
 @ToString
-public class RegistrationDTO {
+public class CodeDTO {
     private Long lotteryId;
+    private LocalDateTime lotteryStartTimestamp;
     @Email
     private String email;
     @Min(21)
-    private Byte age;
     private String code;
 }

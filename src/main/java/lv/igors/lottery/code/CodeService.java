@@ -1,35 +1,66 @@
 package lv.igors.lottery.code;
 
-import lv.igors.lottery.lottery.LotteryService;
+import lombok.RequiredArgsConstructor;
+import lv.igors.lottery.lottery.RegistrationDTO;
 import lv.igors.lottery.statusResponse.Responses;
 import lv.igors.lottery.statusResponse.StatusResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.view.RedirectView;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Formatter;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class CodeService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CodeService.class);
-    private CodeDAO codeDAO;
+    private final CodeDAO codeDAO;
 
-    public CodeService(CodeDAO codeDAO) {
-        this.codeDAO = codeDAO;
+    private boolean validateCode(CodeDTO codeDTO) {
+        String requestedCode = codeDTO.getCode();
+        String datePart = requestedCode.substring(0, 6);
+        String emailPart = requestedCode.substring(7, 8);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("DDMMYY");
+        String lotteryStartDate = codeDTO.getLotteryStartTimestamp().format(formatter);
+        String emailLetterCount;
+
+        if(codeDTO.getEmail().length()%10==0){
+            emailLetterCount = "0" + codeDTO.getEmail().length();
+        }else{
+            emailLetterCount = "" + codeDTO.getEmail().length();
+        }
+
+        return datePart.equals(lotteryStartDate) && (emailPart.equals(emailLetterCount) &&
+                codeDTO.getCode().length()==16);
     }
 
-    public StatusResponse addCode(Code code) {
-        if (!findSimilarCodes(code.getParticipatingCode())) {
-            LOGGER.info("Code saved " + code.toString());
-            codeDAO.save(code);
+    public StatusResponse addCode(CodeDTO codeDTO) {
+        if (!validateCode(codeDTO)) {
+            return StatusResponse.builder()
+                    .status(Responses.FAIL.getResponse())
+                    .reason(Responses.CODE_INVALID.getResponse())
+                    .build();
+        }
+
+        if (!findSimilarCodes(codeDTO.getCode())) {
+            LOGGER.info("Code saved " + codeDTO.toString());
+
+            Code code = Code.builder()
+                    .ownerEmail(codeDTO.getEmail())
+                    .participatingCode(codeDTO.getCode())
+                    .lotteryId(codeDTO.getLotteryId())
+                    .build();
+
             return StatusResponse.builder()
                     .status(Responses.OK.getResponse())
                     .build();
         }
-        LOGGER.warn("Unsuccessful code save due to already exist" + code.toString());
+        LOGGER.warn("Unsuccessful code save due to already exist" + codeDTO.getCode());
         return StatusResponse.builder()
                 .status(Responses.FAIL.getResponse())
                 .reason(Responses.CODE_EXIST.getResponse())
@@ -42,14 +73,24 @@ public class CodeService {
         return possibleCode.isPresent();
     }
 
-    public StatusResponse checkWinnerCode(Code code, String lotteryWinningCode) {
-        Code winnerCode;
+    public StatusResponse checkWinnerCode(CodeDTO codeDTO, String lotteryWinningCode) {
+        if (!validateCode(codeDTO)) {
+            return StatusResponse.builder()
+                    .status(Responses.FAIL.getResponse())
+                    .reason(Responses.CODE_INVALID.getResponse())
+                    .build();
+        }
 
-        LOGGER.info("Checking winning status for" + code.toString());
+        Code winnerCode;
+        Code requestedCode = Code.builder()
+                .ownerEmail(codeDTO.getEmail())
+                .participatingCode(codeDTO.getCode())
+                .lotteryId(codeDTO.getLotteryId())
+                .build();
 
         try {
-            if (!checkCodeOwner(code)) {
-                LOGGER.warn("Foreign code was requested by " + code.toString());
+            if (!checkCodeOwner(requestedCode)) {
+                LOGGER.warn("Foreign code was requested by " + codeDTO.toString());
                 return StatusResponse.builder()
                         .status(Responses.FAIL.getResponse())
                         .reason(Responses.CODE_FOREIGN_CODE.getResponse())
@@ -63,7 +104,7 @@ public class CodeService {
                     .build();
         }
 
-        if (winnerCode.equals(code)) {
+        if (winnerCode.equals(requestedCode)) {
             return StatusResponse.builder()
                     .status(Responses.CODE_WIN.getResponse())
                     .build();
