@@ -15,7 +15,7 @@ import javax.validation.Valid;
 public class LotteryController {
     private final LotteryService lotteryService;
 
-    @PostMapping("/start-registration")
+    @PostMapping("/admin/start-registration")
     public String startRegistration(Model model, BindingResult bindingResult,
                                     @Valid @ModelAttribute NewLotteryDTO newLotteryDTO) {
 
@@ -44,7 +44,7 @@ public class LotteryController {
         return "lottery";
     }
 
-    @PostMapping("/stop-registration")
+    @PostMapping("/admin/stop-registration")
     public String stopRegistration(Model model,
                                    @PathVariable Long lotteryId) {
 
@@ -53,7 +53,7 @@ public class LotteryController {
         return "admin-panel";
     }
 
-    @PostMapping("/choose-winner")
+    @PostMapping("/admin/choose-winner")
     public String chooseWinner(Model model,
                                @PathVariable Long lotteryId) {
 
