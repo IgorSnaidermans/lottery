@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -160,6 +161,22 @@ public class LotteryService {
                     .status(e.getMessage())
                     .build();
         }
+    }
+
+    public List<StatisticsDTO> getAllLotteryStatistics(){
+        List<StatisticsDTO> statisticsList = new ArrayList<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("DD.MM.YY HH:mm");
+
+        for(Lottery lottery: lotteryDAO.findAll()){
+            statisticsList.add(StatisticsDTO.builder()
+                    .id(lottery.getId())
+                    .title(lottery.getTitle())
+                    .participants(lottery.getParticipants())
+                    .startTimestamp(lottery.getStartTimeStamp().format(formatter))
+                    .endTimestamp(lottery.getEndTimeStamp().format(formatter))
+                    .build());
+        }
+        return statisticsList;
     }
 
     public List<Lottery> getAllLotteries() {
