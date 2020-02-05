@@ -51,7 +51,7 @@ public class CodeService {
             Code code = Code.builder()
                     .ownerEmail(codeDTO.getEmail())
                     .participatingCode(codeDTO.getCode())
-                    .Id(codeDTO.getLotteryId())
+                    .lotteryId(codeDTO.getLotteryId())
                     .build();
 
             return StatusResponse.builder()
@@ -83,7 +83,7 @@ public class CodeService {
         Code requestedCode = Code.builder()
                 .ownerEmail(codeDTO.getEmail())
                 .participatingCode(codeDTO.getCode())
-                .Id(codeDTO.getLotteryId())
+                .lotteryId(codeDTO.getLotteryId())
                 .build();
 
         try {
@@ -132,6 +132,6 @@ public class CodeService {
     }
 
     public List<Code> getAllCodesByLotteryId(Long id) {
-        return new ArrayList<>(codeDAO.findAllByLotteryId(id.toString()));
+        return new ArrayList<>(codeDAO.findCodesByLotteryId(id));
     }
 }

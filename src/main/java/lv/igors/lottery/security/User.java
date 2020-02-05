@@ -11,8 +11,11 @@ import javax.persistence.Id;
 @Setter
 @EqualsAndHashCode
 @ToString
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity(name="users")
 public class User {
+
     @Id
     private Long id;
     @Column

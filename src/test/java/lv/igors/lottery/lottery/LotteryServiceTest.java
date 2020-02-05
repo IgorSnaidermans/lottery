@@ -220,7 +220,7 @@ class LotteryServiceTest {
         when(lotteryDAO.findById(any())).thenReturn(Optional.ofNullable(validLottery));
         Code code = Code.builder()
                 .participatingCode(registrationDTO.getCode())
-                .Id(registrationDTO.getLotteryId())
+                .lotteryId(registrationDTO.getLotteryId())
                 .ownerEmail(registrationDTO.getEmail())
                 .build();
 

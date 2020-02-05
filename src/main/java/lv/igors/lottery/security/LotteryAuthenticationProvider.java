@@ -25,7 +25,7 @@ public class LotteryAuthenticationProvider implements AuthenticationProvider {
             throw new BadCredentialsException("No password was provided");
         }
 
-        Optional<User> possibleUser = userDAO.findByName();
+        Optional<User> possibleUser = userDAO.findByName(authentication.getName());
 
         if (possibleUser.isPresent()) {
             User user = possibleUser.get();

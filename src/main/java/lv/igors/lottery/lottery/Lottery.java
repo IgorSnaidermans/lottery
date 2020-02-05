@@ -7,14 +7,16 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import java.time.LocalDateTime;
 
-
 @Builder
 @Getter
 @Setter
 @EqualsAndHashCode
 @ToString
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity(name="lotteries")
 public class Lottery {
+
     @Id
     private Long id;
     @Column

@@ -11,10 +11,15 @@ import javax.persistence.Entity;
 @Setter
 @EqualsAndHashCode
 @ToString
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity(name="codes")
 public class Code {
+
     @Id
-    private Long Id;
+    private Long id;
+    @Column
+    private Long lotteryId;
     @Column
     private String participatingCode;
     @Column
