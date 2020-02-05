@@ -24,10 +24,10 @@ public class LotteryService {
     private final LotteryDAO lotteryDAO;
     private final CodeService codeService;
 
-    public StatusResponse newLottery(String title, int limit) {
+    public StatusResponse newLottery(NewLotteryDTO newLotteryDTO) {
         LocalDateTime currentTimeStamp = LocalDateTime.now();
 
-        if (lotteryDAO.findByTitle(title).isPresent()) {
+        if (lotteryDAO.findByTitle(newLotteryDTO.getTitle()).isPresent()) {
             return StatusResponse.builder()
                     .status("Fail")
                     .reason("This lottery title already exist")
@@ -36,9 +36,9 @@ public class LotteryService {
 
         Lottery lottery = Lottery.builder()
                 .active(true)
-                .title(title)
+                .title(newLotteryDTO.getTitle())
                 .startTimeStamp(currentTimeStamp)
-                .limit(limit)
+                .limit(newLotteryDTO.getLimit())
                 .build();
 
         lotteryDAO.save(lottery);
@@ -49,8 +49,17 @@ public class LotteryService {
                 .build();
     }
 
-    public StatusResponse registerCode(RegistrationDTO registrationDTO) throws LotteryException {
-        Lottery lottery = getLotteryById(registrationDTO.getLotteryId());
+    public StatusResponse registerCode(RegistrationDTO registrationDTO){
+        Lottery lottery;
+
+        try {
+            lottery = getLotteryById(registrationDTO.getLotteryId());
+        } catch (LotteryException e) {
+            return StatusResponse.builder()
+                    .status(Responses.FAIL.getResponse())
+                    .reason(e.getMessage())
+                    .build();
+        }
 
         if (!lottery.isActive()) {
             LOGGER.warn("Unsuccessful code register due to lottery inactive from " + registrationDTO.getEmail() +
@@ -81,8 +90,17 @@ public class LotteryService {
         return codeService.addCode(codeDTO);
     }
 
-    public StatusResponse stopRegistration(Long lotteryId) throws LotteryException {
-        Lottery lottery = getLotteryById(lotteryId);
+    public StatusResponse stopRegistration(Long lotteryId){
+
+        Lottery lottery;
+        try {
+            lottery = getLotteryById(lotteryId);
+        }catch (LotteryException e){
+            return StatusResponse.builder()
+                    .status(Responses.FAIL.getResponse())
+                    .reason(e.getMessage())
+                    .build();
+        }
 
         if (lottery.isActive()) {
             LOGGER.info("Lottery #" + lottery.getId() + " stopped");
@@ -99,8 +117,17 @@ public class LotteryService {
         }
     }
 
-    public StatusResponse chooseWinner(Long id) throws LotteryException {
-        Lottery lottery = getLotteryById(id);
+    public StatusResponse chooseWinner(Long id){
+        Lottery lottery;
+
+        try {
+            lottery = getLotteryById(id);
+        } catch (LotteryException e) {
+            return StatusResponse.builder()
+                    .status(Responses.FAIL.getResponse())
+                    .reason(e.getMessage())
+                    .build();
+        }
 
         if (!lottery.isActive() && null == lottery.getWinnerCode()) {
             Random winnerChooser = new Random();
@@ -134,27 +161,27 @@ public class LotteryService {
                 .build();
     }
 
-    public StatusResponse getWinnerStatus(RegistrationDTO registrationDTO) {
+    public StatusResponse getWinnerStatus(CheckStatusDTO checkStatusDTO) {
         try {
-            Lottery lottery = getLotteryById(registrationDTO.getLotteryId());
+            Lottery lottery = getLotteryById(checkStatusDTO.getLotteryId());
             String lotteryWinningCode = lottery.getWinnerCode();
 
             if (null == lottery.getWinnerCode()) {
                 LOGGER.info("Responded winner is pending. Lottery #" + lottery.getId() +
-                        ". To " + registrationDTO.getEmail());
+                        ". To " + checkStatusDTO.getEmail());
                 return StatusResponse.builder()
                         .status(Responses.LOTTERY_STATUS_PENDING.getResponse())
                         .build();
             }
 
             CodeDTO codeDTO = CodeDTO.builder()
-                    .code(registrationDTO.getCode())
-                    .email(registrationDTO.getEmail())
+                    .code(checkStatusDTO.getCode())
+                    .email(checkStatusDTO.getEmail())
                     .lotteryStartTimestamp(lottery.getStartTimeStamp())
                     .build();
 
             LOGGER.info("Responded winner status. Lottery #" + lottery.getId() +
-                    ". To " + registrationDTO.getEmail());
+                    ". To " + checkStatusDTO.getEmail());
             return codeService.checkWinnerCode(codeDTO, lotteryWinningCode);
         } catch (LotteryException e) {
             return StatusResponse.builder()
