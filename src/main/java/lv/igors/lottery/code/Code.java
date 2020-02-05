@@ -3,6 +3,7 @@ package lv.igors.lottery.code;
 import lombok.*;
 
 import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 
 @Builder
 @Getter
@@ -11,6 +12,8 @@ import javax.validation.constraints.Max;
 @ToString
 public class Code {
     private Long lotteryId;
+    @Min(16)
+    @Max(16)
     private String participatingCode;
     @Max(99)
     private String ownerEmail;

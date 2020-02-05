@@ -49,7 +49,7 @@ public class LotteryService {
     }
 
     public StatusResponse registerCode(RegistrationDTO registrationDTO) throws LotteryException {
-        Lottery lottery = getLottery(registrationDTO.getLotteryId());
+        Lottery lottery = getLotteryById(registrationDTO.getLotteryId());
 
         if (!lottery.isActive()) {
             LOGGER.warn("Unsuccessful code register due to lottery inactive from " + registrationDTO.getEmail() +
@@ -81,7 +81,7 @@ public class LotteryService {
     }
 
     public StatusResponse stopRegistration(Long lotteryId) throws LotteryException {
-        Lottery lottery = getLottery(lotteryId);
+        Lottery lottery = getLotteryById(lotteryId);
 
         if (lottery.isActive()) {
             LOGGER.info("Lottery #" + lottery.getId() + " stopped");
@@ -99,7 +99,7 @@ public class LotteryService {
     }
 
     public StatusResponse chooseWinner(Long id) throws LotteryException {
-        Lottery lottery = getLottery(id);
+        Lottery lottery = getLotteryById(id);
 
         if (!lottery.isActive() && null == lottery.getWinnerCode()) {
             Random winnerChooser = new Random();
@@ -135,7 +135,7 @@ public class LotteryService {
 
     public StatusResponse getWinnerStatus(RegistrationDTO registrationDTO) {
         try {
-            Lottery lottery = getLottery(registrationDTO.getLotteryId());
+            Lottery lottery = getLotteryById(registrationDTO.getLotteryId());
             String lotteryWinningCode = lottery.getWinnerCode();
 
             if (null == lottery.getWinnerCode()) {
@@ -172,7 +172,7 @@ public class LotteryService {
         return lotteryList;
     }
 
-    public Lottery getLottery(Long id) throws LotteryException {
+    public Lottery getLotteryById(Long id) throws LotteryException {
 
         Optional<Lottery> possibleLottery = lotteryDAO.findById(id);
 

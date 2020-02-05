@@ -4,6 +4,7 @@ package lv.igors.lottery.code;
 import lombok.*;
 
 import javax.validation.constraints.Email;
+import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 
@@ -17,6 +18,7 @@ public class CodeDTO {
     private LocalDateTime lotteryStartTimestamp;
     @Email
     private String email;
-    @Min(21)
+    @Min(16)
+    @Max(16)
     private String code;
 }

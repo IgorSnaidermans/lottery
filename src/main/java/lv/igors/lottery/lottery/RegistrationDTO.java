@@ -3,6 +3,7 @@ package lv.igors.lottery.lottery;
 import lombok.*;
 
 import javax.validation.constraints.Email;
+import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 
@@ -18,5 +19,7 @@ public class RegistrationDTO {
     private String email;
     @Min(21)
     private Byte age;
+    @Min(16)
+    @Max(16)
     private String code;
 }

@@ -56,7 +56,7 @@ class LotteryServiceTest {
     void newLottery_ShouldSuccessfullyCreate() {
         final String TITLE = "Title";
 
-        when(lotteryDAO.findByTitle(TITLE)).thenReturn(Optional.empty());
+        when(lotteryDAO.findByTitle(any())).thenReturn(Optional.empty());
 
         StatusResponse statusResponse = lotteryService.newLottery(TITLE, 1000);
 
@@ -65,11 +65,42 @@ class LotteryServiceTest {
     }
 
     @Test
+    void ShouldThrowException_BecauseNoCodeFoundInRepository(){
+        when(lotteryDAO.findById(any()))
+                .thenReturn(Optional.empty());
+
+        assertThrows(LotteryException.class, () -> {
+            lotteryService.getLotteryById(any());
+        });
+    }
+
+    @Test
+    void stopRegistration_ShouldSucceed() throws LotteryException {
+        when(lotteryDAO.findById(any()))
+                .thenReturn(Optional.ofNullable(validLottery));
+
+        StatusResponse statusResponse = lotteryService.stopRegistration(validLottery.getId());
+        assertEquals("OK", statusResponse.getStatus());
+        assertNull(statusResponse.getReason());
+    }
+
+    @Test
+    void stopRegistration_ShouldFailDueToAlreadyStopped() throws LotteryException {
+        validLottery.setActive(false);
+        when(lotteryDAO.findById(any()))
+                .thenReturn(Optional.ofNullable(validLottery));
+
+        StatusResponse statusResponse = lotteryService.stopRegistration(validLottery.getId());
+        assertEquals("Fail", statusResponse.getStatus());
+        assertEquals("Registration is inactive", statusResponse.getReason());
+    }
+
+    @Test
     void newLotteryTitle_ShouldAlreadyExist() {
         final String TITLE = "Title";
         Lottery lottery = Lottery.builder().title(TITLE).build();
 
-        when(lotteryDAO.findByTitle(TITLE)).thenReturn(Optional.ofNullable(lottery));
+        when(lotteryDAO.findByTitle(any())).thenReturn(Optional.ofNullable(lottery));
 
         StatusResponse statusResponse = lotteryService.newLottery(TITLE, 1000);
 
@@ -80,14 +111,10 @@ class LotteryServiceTest {
 
     @Test
     void registerCode_ShouldPass() throws LotteryException {
-        when(lotteryDAO.findById(registrationDTO.getLotteryId()))
+        when(lotteryDAO.findById(any()))
                 .thenReturn(Optional.ofNullable(validLottery));
 
-        when(codeService.addCode(Code.builder()
-                .participatingCode(registrationDTO.getCode())
-                .lotteryId(registrationDTO.getLotteryId())
-                .ownerEmail(registrationDTO.getEmail())
-                .build())).thenReturn(StatusResponse.builder()
+        when(codeService.addCode(any())).thenReturn(StatusResponse.builder()
                 .status("OK")
                 .build());
 
@@ -104,7 +131,7 @@ class LotteryServiceTest {
                 .participants(1000)
                 .build();
 
-        when(lotteryDAO.findById(registrationDTO.getLotteryId())).thenReturn(Optional.ofNullable(lottery));
+        when(lotteryDAO.findById(any())).thenReturn(Optional.ofNullable(lottery));
 
         StatusResponse statusResponse = lotteryService.registerCode(registrationDTO);
 
@@ -120,7 +147,7 @@ class LotteryServiceTest {
                 .participants(999)
                 .build();
 
-        when(lotteryDAO.findById(registrationDTO.getLotteryId())).thenReturn(Optional.ofNullable(lottery));
+        when(lotteryDAO.findById(any())).thenReturn(Optional.ofNullable(lottery));
 
         StatusResponse statusResponse = lotteryService.registerCode(registrationDTO);
 
@@ -131,53 +158,41 @@ class LotteryServiceTest {
 
     @Test
     void getWinnerStatus_ShouldReturnWin() {
-        Code code = Code.builder()
-                .participatingCode(registrationDTO.getCode())
-                .lotteryId(registrationDTO.getLotteryId())
-                .ownerEmail(registrationDTO.getEmail())
-                .build();
+
         validLottery.setWinnerCode(registrationDTO.getCode());
 
-        when(codeService.checkWinnerCode(code, registrationDTO.getCode())).thenReturn(StatusResponse.builder()
+        when(codeService.checkWinnerCode(any(), any())).thenReturn(StatusResponse.builder()
                 .status("WIN")
                 .build());
-        when(lotteryDAO.findById(registrationDTO.getLotteryId())).thenReturn(Optional.ofNullable(validLottery));
+        when(lotteryDAO.findById(any())).thenReturn(Optional.ofNullable(validLottery));
 
-        StatusResponse statusResponse = lotteryService.getWinnerStatus(code);
+        StatusResponse statusResponse = lotteryService.getWinnerStatus(registrationDTO);
 
         assertEquals("WIN", statusResponse.getStatus());
     }
 
     @Test
     void getWinnerStatus_ShouldReturnLose() {
-        Code code = Code.builder()
-                .participatingCode("123")
-                .lotteryId(registrationDTO.getLotteryId())
-                .ownerEmail(registrationDTO.getEmail())
-                .build();
         validLottery.setWinnerCode(registrationDTO.getCode());
 
-        when(codeService.checkWinnerCode(code, registrationDTO.getCode())).thenReturn(StatusResponse.builder()
-                .status("Lose")
-                .build());
-        when(lotteryDAO.findById(registrationDTO.getLotteryId())).thenReturn(Optional.ofNullable(validLottery));
+        when(lotteryDAO.findById(any()))
+                .thenReturn(Optional.ofNullable(validLottery));
 
-        StatusResponse statusResponse = lotteryService.getWinnerStatus(code);
+        when(codeService.checkWinnerCode(any(), any()))
+                .thenReturn(StatusResponse.builder()
+                        .status("Lose")
+                        .build());
+
+        StatusResponse statusResponse = lotteryService.getWinnerStatus(registrationDTO);
 
         assertEquals("Lose", statusResponse.getStatus());
     }
 
     @Test
     void getWinnerStatus_ShouldReturnPending() {
-        Code code = Code.builder()
-                .participatingCode(registrationDTO.getCode())
-                .lotteryId(registrationDTO.getLotteryId())
-                .ownerEmail(registrationDTO.getEmail())
-                .build();
+        when(lotteryDAO.findById(any())).thenReturn(Optional.ofNullable(validLottery));
 
-        when(lotteryDAO.findById(registrationDTO.getLotteryId())).thenReturn(Optional.ofNullable(validLottery));
-
-        StatusResponse statusResponse = lotteryService.getWinnerStatus(code);
+        StatusResponse statusResponse = lotteryService.getWinnerStatus(registrationDTO);
 
         assertEquals("PENDING", statusResponse.getStatus());
     }

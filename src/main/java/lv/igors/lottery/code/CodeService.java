@@ -23,13 +23,13 @@ public class CodeService {
     private boolean validateCode(CodeDTO codeDTO) {
         String requestedCode = codeDTO.getCode();
         String datePart = requestedCode.substring(0, 6);
-        String emailPart = requestedCode.substring(7, 8);
+        String emailPart = requestedCode.substring(6, 8);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("DDMMYY");
         String lotteryStartDate = codeDTO.getLotteryStartTimestamp().format(formatter);
         String emailLetterCount;
 
-        if(codeDTO.getEmail().length()%10==0){
+        if(codeDTO.getEmail().length()<10){
             emailLetterCount = "0" + codeDTO.getEmail().length();
         }else{
             emailLetterCount = "" + codeDTO.getEmail().length();
