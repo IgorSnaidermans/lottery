@@ -15,7 +15,7 @@ public enum Responses {
     CODE_WIN("WIN"),
     CODE_LOSE("LOSE"),
     CODE_NON_EXIST("Code doesnt exist"),
-    CODE_INVALID ("Invalid code");
+    CODE_INVALID("Invalid code");
 
 
     private String title;

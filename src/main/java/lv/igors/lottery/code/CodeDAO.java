@@ -9,5 +9,6 @@ import java.util.Optional;
 @Repository
 public interface CodeDAO extends CrudRepository<Code, Long> {
     List<Code> findAllByLotteryId(String lotteryId);
+
     Optional<Code> findCodeByParticipatingCode(String code);
 }

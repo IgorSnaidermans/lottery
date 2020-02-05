@@ -1,7 +1,6 @@
 package lv.igors.lottery.code;
 
 import lombok.RequiredArgsConstructor;
-import lv.igors.lottery.lottery.RegistrationDTO;
 import lv.igors.lottery.statusResponse.Responses;
 import lv.igors.lottery.statusResponse.StatusResponse;
 import org.slf4j.Logger;
@@ -10,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Formatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,14 +27,14 @@ public class CodeService {
         String lotteryStartDate = codeDTO.getLotteryStartTimestamp().format(formatter);
         String emailLetterCount;
 
-        if(codeDTO.getEmail().length()<10){
+        if (codeDTO.getEmail().length() < 10) {
             emailLetterCount = "0" + codeDTO.getEmail().length();
-        }else{
+        } else {
             emailLetterCount = "" + codeDTO.getEmail().length();
         }
 
         return datePart.equals(lotteryStartDate) && (emailPart.equals(emailLetterCount) &&
-                codeDTO.getCode().length()==16);
+                codeDTO.getCode().length() == 16);
     }
 
     public StatusResponse addCode(CodeDTO codeDTO) {
