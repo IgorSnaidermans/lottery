@@ -51,7 +51,7 @@ public class CodeService {
             Code code = Code.builder()
                     .ownerEmail(codeDTO.getEmail())
                     .participatingCode(codeDTO.getCode())
-                    .lotteryId(codeDTO.getLotteryId())
+                    .Id(codeDTO.getLotteryId())
                     .build();
 
             return StatusResponse.builder()
@@ -83,7 +83,7 @@ public class CodeService {
         Code requestedCode = Code.builder()
                 .ownerEmail(codeDTO.getEmail())
                 .participatingCode(codeDTO.getCode())
-                .lotteryId(codeDTO.getLotteryId())
+                .Id(codeDTO.getLotteryId())
                 .build();
 
         try {

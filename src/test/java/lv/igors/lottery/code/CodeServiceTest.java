@@ -39,7 +39,7 @@ class CodeServiceTest {
         winnerCode = Code.builder()
                 .ownerEmail("test@test.lv")
                 .participatingCode(REG_CODE)
-                .lotteryId(0L)
+                .Id(0L)
                 .build();
 
         codeDTO = CodeDTO.builder()
@@ -55,9 +55,7 @@ class CodeServiceTest {
         when(codeDao.findCodeByParticipatingCode(any()))
                 .thenReturn(Optional.empty());
 
-        assertThrows(CodeException.class, () -> {
-            codeService.getCodeByParticipatingCode(any());
-    });
+        assertThrows(CodeException.class, () -> codeService.getCodeByParticipatingCode(any()));
     }
 
     @Test
@@ -117,7 +115,7 @@ class CodeServiceTest {
 
     private Code codeDtoToCode() {
         return Code.builder()
-                    .lotteryId(codeDTO.getLotteryId())
+                    .Id(codeDTO.getLotteryId())
                     .participatingCode(codeDTO.getCode())
                     .ownerEmail(codeDTO.getEmail())
                     .build();

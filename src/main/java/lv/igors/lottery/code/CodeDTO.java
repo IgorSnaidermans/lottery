@@ -17,6 +17,7 @@ public class CodeDTO {
     private Long lotteryId;
     private LocalDateTime lotteryStartTimestamp;
     @Email
+    @Max(99)
     private String email;
     @Min(16)
     @Max(16)

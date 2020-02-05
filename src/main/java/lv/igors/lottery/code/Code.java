@@ -2,19 +2,21 @@ package lv.igors.lottery.code;
 
 import lombok.*;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
+import javax.persistence.Column;
+import javax.persistence.Id;
+import javax.persistence.Entity;
 
 @Builder
 @Getter
 @Setter
 @EqualsAndHashCode
 @ToString
+@Entity(name="codes")
 public class Code {
-    private Long lotteryId;
-    @Min(16)
-    @Max(16)
+    @Id
+    private Long Id;
+    @Column
     private String participatingCode;
-    @Max(99)
+    @Column
     private String ownerEmail;
 }

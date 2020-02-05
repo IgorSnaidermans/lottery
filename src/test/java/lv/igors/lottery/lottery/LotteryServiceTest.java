@@ -62,7 +62,7 @@ class LotteryServiceTest {
 
         validLottery = Lottery.builder()
                 .active(true)
-                .limit(LIMIT)
+                .participantsLimit(LIMIT)
                 .participants(LIMIT-1)
                 .build();
     }
@@ -84,9 +84,7 @@ class LotteryServiceTest {
         when(lotteryDAO.findById(any()))
                 .thenReturn(Optional.empty());
 
-        assertThrows(LotteryException.class, () -> {
-            lotteryService.getLotteryById(any());
-        });
+        assertThrows(LotteryException.class, () -> lotteryService.getLotteryById(any()));
     }
 
     @Test
@@ -142,7 +140,7 @@ class LotteryServiceTest {
     void registerCodeShouldNotPass_DueToTooManyParticipants(){
         Lottery lottery = Lottery.builder()
                 .active(true)
-                .limit(1000)
+                .participantsLimit(1000)
                 .participants(1000)
                 .build();
 
@@ -158,7 +156,7 @@ class LotteryServiceTest {
     void registerCodeShouldNotPass_DueToLotteryInactive(){
         Lottery lottery = Lottery.builder()
                 .active(false)
-                .limit(1000)
+                .participantsLimit(1000)
                 .participants(999)
                 .build();
 
@@ -222,7 +220,7 @@ class LotteryServiceTest {
         when(lotteryDAO.findById(any())).thenReturn(Optional.ofNullable(validLottery));
         Code code = Code.builder()
                 .participatingCode(registrationDTO.getCode())
-                .lotteryId(registrationDTO.getLotteryId())
+                .Id(registrationDTO.getLotteryId())
                 .ownerEmail(registrationDTO.getEmail())
                 .build();
 

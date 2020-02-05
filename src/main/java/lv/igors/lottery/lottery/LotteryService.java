@@ -37,8 +37,8 @@ public class LotteryService {
         Lottery lottery = Lottery.builder()
                 .active(true)
                 .title(newLotteryDTO.getTitle())
-                .startTimeStamp(currentTimeStamp)
-                .limit(newLotteryDTO.getLimit())
+                .startTimestamp(currentTimeStamp)
+                .participantsLimit(newLotteryDTO.getLimit())
                 .build();
 
         lotteryDAO.save(lottery);
@@ -68,7 +68,7 @@ public class LotteryService {
                     .status(Responses.FAIL.getResponse())
                     .reason(Responses.LOTTERY_REGISTER_INACTIVE.getResponse())
                     .build();
-        } else if (lottery.getParticipants() >= lottery.getLimit()) {
+        } else if (lottery.getParticipants() >= lottery.getParticipantsLimit()) {
             LOGGER.warn("Unsuccessful code register due to excess participants from " + registrationDTO.getEmail() +
                     ". Lottery #" + registrationDTO.getLotteryId());
             return StatusResponse.builder()
@@ -81,7 +81,7 @@ public class LotteryService {
                 .code(registrationDTO.getCode())
                 .email(registrationDTO.getEmail())
                 .lotteryId(registrationDTO.getLotteryId())
-                .lotteryStartTimestamp(lottery.getStartTimeStamp())
+                .lotteryStartTimestamp(lottery.getStartTimestamp())
                 .build();
 
         LOGGER.info("Code registration from " + registrationDTO.getEmail() + ".Code:"
@@ -132,7 +132,7 @@ public class LotteryService {
         if (!lottery.isActive() && null == lottery.getWinnerCode()) {
             Random winnerChooser = new Random();
             List<Code> participatingCodes = codeService.getAllCodesByLotteryId(id);
-            int winnerCodeInList = winnerChooser.nextInt(lottery.getLimit());
+            int winnerCodeInList = winnerChooser.nextInt(lottery.getParticipantsLimit());
 
             String winnerCode = participatingCodes.get(winnerCodeInList).getParticipatingCode();
             LOGGER.info("Lottery #" + lottery.getId() + ". Chosen winner code: " + winnerCode);
@@ -177,7 +177,7 @@ public class LotteryService {
             CodeDTO codeDTO = CodeDTO.builder()
                     .code(checkStatusDTO.getCode())
                     .email(checkStatusDTO.getEmail())
-                    .lotteryStartTimestamp(lottery.getStartTimeStamp())
+                    .lotteryStartTimestamp(lottery.getStartTimestamp())
                     .build();
 
             LOGGER.info("Responded winner status. Lottery #" + lottery.getId() +
@@ -199,8 +199,8 @@ public class LotteryService {
                     .id(lottery.getId())
                     .title(lottery.getTitle())
                     .participants(lottery.getParticipants())
-                    .startTimestamp(lottery.getStartTimeStamp().format(formatter))
-                    .endTimestamp(lottery.getEndTimeStamp().format(formatter))
+                    .startTimestamp(lottery.getStartTimestamp().format(formatter))
+                    .endTimestamp(lottery.getEndTimestamp().format(formatter))
                     .build());
         }
         return statisticsList;

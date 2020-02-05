@@ -2,6 +2,9 @@ package lv.igors.lottery.lottery;
 
 import lombok.*;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 import java.time.LocalDateTime;
 
 
@@ -10,13 +13,22 @@ import java.time.LocalDateTime;
 @Setter
 @EqualsAndHashCode
 @ToString
+@Entity(name="lotteries")
 public class Lottery {
+    @Id
     private Long id;
+    @Column
     private boolean active;
-    private int limit;
+    @Column
+    private int participantsLimit;
+    @Column
     private int participants;
+    @Column
     private String winnerCode;
-    private LocalDateTime startTimeStamp;
-    private LocalDateTime endTimeStamp;
+    @Column
+    private LocalDateTime startTimestamp;
+    @Column
+    private LocalDateTime endTimestamp;
+    @Column
     private String title;
 }

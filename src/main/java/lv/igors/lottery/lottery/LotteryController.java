@@ -19,7 +19,7 @@ public class LotteryController {
     public String startRegistration(Model model, BindingResult bindingResult,
                                     @Valid @ModelAttribute NewLotteryDTO newLotteryDTO) {
 
-        if(bindingResult.hasErrors()){
+        if (bindingResult.hasErrors()) {
             model.addAttribute(bindingResult.getFieldErrors());
         }
 
@@ -32,13 +32,13 @@ public class LotteryController {
     public String registerToLottery(Model model, BindingResult bindingResult,
                                     @Valid @ModelAttribute RegistrationDTO registrationDTO) throws LotteryException {
 
-        if(bindingResult.hasErrors()){
+        if (bindingResult.hasErrors()) {
             model.addAttribute(bindingResult.getFieldErrors());
         }
 
         StatusResponse statusResponse = lotteryService.registerCode(registrationDTO);
         model.addAttribute(statusResponse);
-        if(statusResponse.getStatus().equals(Responses.OK.getResponse())){
+        if (statusResponse.getStatus().equals(Responses.OK.getResponse())) {
             model.addAttribute(lotteryService.getLotteryById(registrationDTO.getLotteryId()));
         }
         return "lottery";
@@ -66,13 +66,13 @@ public class LotteryController {
     public String checkWinnerStatus(Model model, BindingResult bindingResult,
                                     @Valid @ModelAttribute CheckStatusDTO checkStatusDTO) throws LotteryException {
 
-        if(bindingResult.hasErrors()){
+        if (bindingResult.hasErrors()) {
             model.addAttribute(bindingResult.getFieldErrors());
         }
 
         StatusResponse statusResponse = lotteryService.getWinnerStatus(checkStatusDTO);
         model.addAttribute(statusResponse);
-        if(statusResponse.getStatus().equals(Responses.OK.getResponse())){
+        if (statusResponse.getStatus().equals(Responses.OK.getResponse())) {
             model.addAttribute(lotteryService.getLotteryById(checkStatusDTO.getLotteryId()));
         }
         return "lottery";
@@ -86,11 +86,11 @@ public class LotteryController {
 
     @GetMapping("/lottery")
     public String getLottery(Model model,
-                             @RequestParam Long lotteryId){
+                             @RequestParam Long lotteryId) {
 
-        try{
+        try {
             model.addAttribute(lotteryService.getLotteryById(lotteryId));
-        }catch(LotteryException e){
+        } catch (LotteryException e) {
             model.addAttribute(StatusResponse.builder()
                     .reason(e.getMessage())
                     .status(Responses.FAIL.getResponse()));
