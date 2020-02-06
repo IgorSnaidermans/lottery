@@ -16,21 +16,20 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Entity(name="lotteries")
 public class Lottery {
-
     @Id
     private Long id;
-    @Column
+    @Column(name = "active")
     private boolean active;
-    @Column
+    @Column(name = "participantslimit")
     private int participantsLimit;
-    @Column
+    @Column(name = "participants")
     private int participants;
-    @Column
+    @Column(name = "winnercode")
     private String winnerCode;
-    @Column
+    @Column(name = "starttimestamp")
     private LocalDateTime startTimestamp;
-    @Column
+    @Column(name = "endtimestamp")
     private LocalDateTime endTimestamp;
-    @Column
+    @Column(name = "title")
     private String title;
 }
