@@ -16,8 +16,9 @@ public class LotteryController {
     private final LotteryService lotteryService;
 
     @PostMapping("/admin/start-registration")
-    public String startRegistration(Model model, BindingResult bindingResult,
-                                    @Valid @ModelAttribute NewLotteryDTO newLotteryDTO) {
+    public String startRegistration(Model model,
+                                    @Valid @ModelAttribute NewLotteryDTO newLotteryDTO,
+                                    BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute(bindingResult.getFieldErrors());
@@ -29,8 +30,9 @@ public class LotteryController {
     }
 
     @PostMapping("/register")
-    public String registerToLottery(Model model, BindingResult bindingResult,
-                                    @Valid @ModelAttribute RegistrationDTO registrationDTO) throws LotteryException {
+    public String registerToLottery(Model model,
+                                    @Valid @ModelAttribute RegistrationDTO registrationDTO,
+                                    BindingResult bindingResult) throws LotteryException {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute(bindingResult.getFieldErrors());
@@ -63,8 +65,9 @@ public class LotteryController {
     }
 
     @GetMapping("/status")
-    public String checkWinnerStatus(Model model, BindingResult bindingResult,
-                                    @Valid @ModelAttribute CheckStatusDTO checkStatusDTO) throws LotteryException {
+    public String checkWinnerStatus(Model model,
+                                    @Valid @ModelAttribute CheckStatusDTO checkStatusDTO,
+                                    BindingResult bindingResult) throws LotteryException {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute(bindingResult.getFieldErrors());

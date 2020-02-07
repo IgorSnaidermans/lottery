@@ -19,6 +19,9 @@ public class CodeService {
     private final CodeDAO codeDAO;
 
     private boolean validateCode(CodeDTO codeDTO) {
+        if (codeDTO.getCode().length() != 16) {
+            return false;
+        }
         String requestedCode = codeDTO.getCode();
         String datePart = requestedCode.substring(0, 6);
         String emailPart = requestedCode.substring(6, 8);
@@ -33,12 +36,12 @@ public class CodeService {
             emailLetterCount = "" + codeDTO.getEmail().length();
         }
 
-        return datePart.equals(lotteryStartDate) && (emailPart.equals(emailLetterCount) &&
-                codeDTO.getCode().length() == 16);
+        return datePart.equals(lotteryStartDate) && (emailPart.equals(emailLetterCount));
     }
 
     public StatusResponse addCode(CodeDTO codeDTO) {
         if (!validateCode(codeDTO)) {
+            LOGGER.info("Code did not pass validation " + codeDTO.toString());
             return StatusResponse.builder()
                     .status(Responses.FAIL.getResponse())
                     .reason(Responses.CODE_INVALID.getResponse())
@@ -54,6 +57,7 @@ public class CodeService {
                     .lotteryId(codeDTO.getLotteryId())
                     .build();
 
+            codeDAO.save(code);
             return StatusResponse.builder()
                     .status(Responses.OK.getResponse())
                     .build();

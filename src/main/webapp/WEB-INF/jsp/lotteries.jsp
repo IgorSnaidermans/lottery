@@ -20,14 +20,14 @@
                             <h5 class="card-title">${lotteryDTO.title}</h5>
                             <p class="card-text">${lotteryDTO.startTimestamp}</p>
                             <button type="button" class="btn btn-primary" data-toggle="modal"
-                                    data-target="#exampleModal">
-                                Launch demo modal
+                                    data-target="#lottery${lotteryDTO.id}">
+                                Open
                             </button>
                         </div>
                     </div>
 
                     <!-- Modal -->
-                    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-hidden="true">
+                    <div class="modal fade" id="lottery${lotteryDTO.id}" tabindex="-1" role="dialog" aria-hidden="true">
                         <div class="modal-dialog" role="document">
                             <div class="modal-content">
                                 <div class="modal-header">
@@ -37,19 +37,29 @@
                                     </button>
                                 </div>
                                 <div class="modal-body">
-                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-                                    incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-                                    exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute
-                                    irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-                                    pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
-                                    deserunt mollit anim id est laborum.
+                                    <form action="/register" method="post">
+                                        <input type="hidden" name="lotteryId" value="${lotteryDTO.id}">
+                                        <div class="form-group">
+                                            <input name="email" type="email" class="form-control"
+                                                   aria-describedby="emailHelp" placeholder="Enter email">
+                                        </div>
+                                        <div class="form-group">
+                                            <input name="code" class="form-control" placeholder="Enter code">
+                                        </div>
+                                        <div class="form-group">
+                                            <input name="age" class="form-control" placeholder="Your age">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Register</button>
+                                        <button type="submit" class="btn btn-primary" formaction="/status">Check win
+                                        </button>
+                                    </form>
+                                    <p class="text-center">By submitting the data, you agree that the website owner will
+                                        store them
+                                        & it will be used for educational purposes.</p>
                                 </div>
-
                             </div>
                         </div>
                     </div>
-
-
                 </c:forEach>
             </div>
         </div>
