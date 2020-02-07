@@ -206,11 +206,19 @@ public class LotteryService {
         return statisticsList;
     }
 
-    public List<Lottery> getAllLotteries() {
-        List<Lottery> lotteryList = new ArrayList<>();
+    public List<LotteryDTO> getAllLotteries() {
+        List<LotteryDTO> lotteryList = new ArrayList<>();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("DD.MM.YY HH:mm");
 
         for (Lottery lottery : lotteryDAO.findAll()) {
-            lotteryList.add(lottery);
+            LotteryDTO lotteryDTO = LotteryDTO.builder()
+                    .id(lottery.getId())
+                    .endTimestamp(lottery.getEndTimestamp().format(dateTimeFormatter))
+                    .startTimestamp(lottery.getStartTimestamp().format(dateTimeFormatter))
+                    .title(lottery.getTitle())
+                    .build();
+
+            lotteryList.add(lotteryDTO);
         }
 
         return lotteryList;
