@@ -37,7 +37,7 @@
                                     </button>
                                 </div>
                                 <div class="modal-body">
-                                    <form action="/register" method="post">
+                                    <form action="/register">
                                         <input type="hidden" name="lotteryId" value="${lotteryDTO.id}">
                                         <div class="form-group">
                                             <input name="email" type="email" class="form-control"
@@ -49,8 +49,10 @@
                                         <div class="form-group">
                                             <input name="age" class="form-control" placeholder="Your age">
                                         </div>
-                                        <button type="submit" class="btn btn-primary">Register</button>
-                                        <button type="submit" class="btn btn-primary" formaction="/status">Check win
+                                        <button type="submit" class="btn btn-primary" formmethod="post">Register
+                                        </button>
+                                        <button type="submit" class="btn btn-primary" formmethod="get"
+                                                formaction="/status">Check win
                                         </button>
                                     </form>
                                     <p class="text-center">By submitting the data, you agree that the website owner will

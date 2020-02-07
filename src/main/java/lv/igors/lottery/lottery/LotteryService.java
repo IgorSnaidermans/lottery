@@ -49,7 +49,7 @@ public class LotteryService {
                 .build();
     }
 
-    public StatusResponse registerCode(RegistrationDTO registrationDTO){
+    public StatusResponse registerCode(RegistrationDTO registrationDTO) {
         Lottery lottery;
 
         try {
@@ -90,12 +90,12 @@ public class LotteryService {
         return codeService.addCode(codeDTO);
     }
 
-    public StatusResponse stopRegistration(Long lotteryId){
+    public StatusResponse stopRegistration(Long lotteryId) {
 
         Lottery lottery;
         try {
             lottery = getLotteryById(lotteryId);
-        }catch (LotteryException e){
+        } catch (LotteryException e) {
             return StatusResponse.builder()
                     .status(Responses.FAIL.getResponse())
                     .reason(e.getMessage())
@@ -117,7 +117,7 @@ public class LotteryService {
         }
     }
 
-    public StatusResponse chooseWinner(Long id){
+    public StatusResponse chooseWinner(Long id) {
         Lottery lottery;
 
         try {
@@ -166,6 +166,22 @@ public class LotteryService {
             Lottery lottery = getLotteryById(checkStatusDTO.getLotteryId());
             String lotteryWinningCode = lottery.getWinnerCode();
 
+            CodeDTO codeDTO = CodeDTO.builder()
+                    .code(checkStatusDTO.getCode())
+                    .email(checkStatusDTO.getEmail())
+                    .lotteryStartTimestamp(lottery.getStartTimestamp())
+                    .build();
+
+
+            if (!codeService.isCodeValid(codeDTO)) {
+                LOGGER.info("Code did not pass validation " + codeDTO.toString());
+                return StatusResponse.builder()
+                        .status(Responses.FAIL.getResponse())
+                        .reason(Responses.CODE_INVALID.getResponse())
+                        .build();
+            }
+
+
             if (null == lottery.getWinnerCode()) {
                 LOGGER.info("Responded winner is pending. Lottery #" + lottery.getId() +
                         ". To " + checkStatusDTO.getEmail());
@@ -173,12 +189,6 @@ public class LotteryService {
                         .status(Responses.LOTTERY_STATUS_PENDING.getResponse())
                         .build();
             }
-
-            CodeDTO codeDTO = CodeDTO.builder()
-                    .code(checkStatusDTO.getCode())
-                    .email(checkStatusDTO.getEmail())
-                    .lotteryStartTimestamp(lottery.getStartTimestamp())
-                    .build();
 
             LOGGER.info("Responded winner status. Lottery #" + lottery.getId() +
                     ". To " + checkStatusDTO.getEmail());
@@ -190,11 +200,11 @@ public class LotteryService {
         }
     }
 
-    public List<StatisticsDTO> getAllLotteryStatistics(){
+    public List<StatisticsDTO> getAllLotteryStatistics() {
         List<StatisticsDTO> statisticsList = new ArrayList<>();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("DD.MM.YY HH:mm");
 
-        for(Lottery lottery: lotteryDAO.findAll()){
+        for (Lottery lottery : lotteryDAO.findAll()) {
             statisticsList.add(StatisticsDTO.builder()
                     .id(lottery.getId())
                     .title(lottery.getTitle())
@@ -208,7 +218,7 @@ public class LotteryService {
 
     public List<LotteryDTO> getAllLotteries() {
         List<LotteryDTO> lotteryList = new ArrayList<>();
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("DD.MM.YY HH:mm");
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.YY HH:mm");
 
         for (Lottery lottery : lotteryDAO.findAll()) {
             LotteryDTO lotteryDTO = LotteryDTO.builder()

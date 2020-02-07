@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Builder
 @Getter
@@ -11,7 +12,7 @@ import javax.validation.constraints.NotBlank;
 @EqualsAndHashCode
 @ToString
 public class CheckStatusDTO {
-    @NotBlank
+    @NotNull
     Long lotteryId;
     @Email
     String email;

@@ -18,7 +18,7 @@ public class CodeService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CodeService.class);
     private final CodeDAO codeDAO;
 
-    private boolean validateCode(CodeDTO codeDTO) {
+    public boolean isCodeValid(CodeDTO codeDTO) {
         if (codeDTO.getCode().length() != 16) {
             return false;
         }
@@ -26,7 +26,7 @@ public class CodeService {
         String datePart = requestedCode.substring(0, 6);
         String emailPart = requestedCode.substring(6, 8);
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("DDMMYY");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMYY");
         String lotteryStartDate = codeDTO.getLotteryStartTimestamp().format(formatter);
         String emailLetterCount;
 
@@ -40,7 +40,7 @@ public class CodeService {
     }
 
     public StatusResponse addCode(CodeDTO codeDTO) {
-        if (!validateCode(codeDTO)) {
+        if (!isCodeValid(codeDTO)) {
             LOGGER.info("Code did not pass validation " + codeDTO.toString());
             return StatusResponse.builder()
                     .status(Responses.FAIL.getResponse())
@@ -76,7 +76,7 @@ public class CodeService {
     }
 
     public StatusResponse checkWinnerCode(CodeDTO codeDTO, String lotteryWinningCode) {
-        if (!validateCode(codeDTO)) {
+        if (!isCodeValid(codeDTO)) {
             return StatusResponse.builder()
                     .status(Responses.FAIL.getResponse())
                     .reason(Responses.CODE_INVALID.getResponse())

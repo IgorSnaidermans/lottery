@@ -2,9 +2,7 @@ package lv.igors.lottery.code;
 
 import lombok.*;
 
-import javax.persistence.Column;
-import javax.persistence.Id;
-import javax.persistence.Entity;
+import javax.persistence.*;
 
 @Builder
 @Getter
@@ -17,11 +15,12 @@ import javax.persistence.Entity;
 public class Code {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column
+    @Column(name = "lotteryid")
     private Long lotteryId;
-    @Column
+    @Column(name = "participatingcode")
     private String participatingCode;
-    @Column
+    @Column(name = "owneremail")
     private String ownerEmail;
 }

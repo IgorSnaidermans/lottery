@@ -57,7 +57,7 @@ public class LotteryController {
 
     @PostMapping("/admin/choose-winner")
     public String chooseWinner(Model model,
-                               @PathVariable Long lotteryId) {
+                               @RequestParam Long lotteryId) {
 
         StatusResponse statusResponse = lotteryService.chooseWinner(lotteryId);
         model.addAttribute(statusResponse);
@@ -66,12 +66,15 @@ public class LotteryController {
 
     @GetMapping("/status")
     public String checkWinnerStatus(Model model,
-                                    @Valid @ModelAttribute CheckStatusDTO checkStatusDTO,
-                                    BindingResult bindingResult) throws LotteryException {
+                                    @RequestParam("lotteryId") Long id,
+                                    @RequestParam("email") String email,
+                                    @RequestParam("code") String code) throws LotteryException {
 
-        if (bindingResult.hasErrors()) {
-            model.addAttribute(bindingResult.getFieldErrors());
-        }
+        CheckStatusDTO checkStatusDTO = CheckStatusDTO.builder()
+                .code(code)
+                .email(email)
+                .lotteryId(id)
+                .build();
 
         StatusResponse statusResponse = lotteryService.getWinnerStatus(checkStatusDTO);
         model.addAttribute(statusResponse);
