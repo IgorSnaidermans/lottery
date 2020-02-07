@@ -102,6 +102,6 @@ public class LotteryController {
     @GetMapping("/")
     public String homePage(Model model) {
         model.addAttribute("lotteries", lotteryService.getAllLotteries());
-        return "index";
+        return "lotteries";
     }
 }
