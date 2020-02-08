@@ -2,13 +2,25 @@
 
 <%--@elvariable id="lotteries" type="java.util.List"--%>
 <%--@elvariable id="lotteryDTO" type="lv.igors.lottery.lottery.dto.LotteryDTO"--%>
+<%--@elvariable id="statusResponse" type="lv.igors.lottery.statusResponse.StatusResponse"--%>
+<%--@elvariable id="response" type="lv.igors.lottery.statusResponse.Responses"--%>
+<%--@elvariable id="bindingResult" type="org.springframework.validation.BindingResult"--%>
 
 <%@include file="head.jsp" %>
 
 <body>
 <%@include file="navbar.jsp" %>
+
 <section>
     <div class="container">
+        <c:if test="${statusResponse.status.equals('Fail')}">
+            <c:out value="<p>An error happened: ${statusResponse.reason}</p>"/> </c:if>
+
+
+        ${statusResponse.status.contains("")}
+        ${welcome}
+        <c:out value='${welcome}'/>
+
 
         <div class="container-fluid">
             <div class="row">

@@ -35,7 +35,11 @@ public class LotteryController {
         }
 
         StatusResponse statusResponse = lotteryService.newLottery(newLotteryDTO);
-        model.addAttribute(statusResponse);
+        if (statusResponse.getStatus().equals(Responses.FAIL.getResponse())) {
+            model.addAttribute("statusResponse", statusResponse);
+            model.addAttribute("back", "admin");
+            return "error";
+        }
         return "redirect:/admin";
     }
 
@@ -44,7 +48,11 @@ public class LotteryController {
                                    @ModelAttribute LotteryIdDTO lotteryId) {
 
         StatusResponse statusResponse = lotteryService.stopRegistration(lotteryId);
-        model.addAttribute(statusResponse);
+        if (statusResponse.getStatus().equals(Responses.FAIL.getResponse())) {
+            model.addAttribute("statusResponse", statusResponse);
+            model.addAttribute("back", "admin");
+            return "error";
+        }
         return "redirect:/admin";
     }
 
@@ -53,23 +61,28 @@ public class LotteryController {
                                @ModelAttribute LotteryIdDTO lotteryId) {
 
         StatusResponse statusResponse = lotteryService.chooseWinner(lotteryId);
-        model.addAttribute(statusResponse);
+
+        if (statusResponse.getStatus().equals(Responses.FAIL.getResponse())) {
+            model.addAttribute("statusResponse", statusResponse);
+            model.addAttribute("back", "admin");
+            return "error";
+        }
         return "redirect:/admin";
     }
 
     @PostMapping("/register")
     public String registerToLottery(Model model,
                                     @Valid @ModelAttribute RegistrationDTO registrationDTO,
-                                    BindingResult bindingResult) throws LotteryException {
+                                    BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute(bindingResult.getFieldErrors());
         }
 
         StatusResponse statusResponse = lotteryService.registerCode(registrationDTO);
-        model.addAttribute(statusResponse);
-        if (statusResponse.getStatus().equals(Responses.OK.getResponse())) {
-            model.addAttribute(lotteryService.getLotteryById(registrationDTO.getLotteryId()));
+        if (statusResponse.getStatus().equals(Responses.FAIL.getResponse())) {
+            model.addAttribute("statusResponse", statusResponse);
+            return "error";
         }
         return "redirect:/";
     }
@@ -78,7 +91,7 @@ public class LotteryController {
     public String checkWinnerStatus(Model model,
                                     @RequestParam("lotteryId") Long id,
                                     @RequestParam("email") String email,
-                                    @RequestParam("code") String code) throws LotteryException {
+                                    @RequestParam("code") String code) {
 
         CheckStatusDTO checkStatusDTO = CheckStatusDTO.builder()
                 .code(code)
@@ -87,9 +100,9 @@ public class LotteryController {
                 .build();
 
         StatusResponse statusResponse = lotteryService.getWinnerStatus(checkStatusDTO);
-        model.addAttribute(statusResponse);
-        if (statusResponse.getStatus().equals(Responses.OK.getResponse())) {
-            model.addAttribute(lotteryService.getLotteryById(checkStatusDTO.getLotteryId()));
+        if (statusResponse.getStatus().equals(Responses.FAIL.getResponse())) {
+            model.addAttribute("statusResponse", statusResponse);
+            return "error";
         }
         return "redirect:/";
     }
@@ -107,9 +120,10 @@ public class LotteryController {
         try {
             model.addAttribute(lotteryService.getLotteryById(lotteryId));
         } catch (LotteryException e) {
-            model.addAttribute(StatusResponse.builder()
+            model.addAttribute("statusResponse", StatusResponse.builder()
                     .reason(e.getMessage())
                     .status(Responses.FAIL.getResponse()));
+            return "error";
         }
 
         return "lottery";

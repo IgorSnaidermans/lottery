@@ -250,4 +250,5 @@ public class LotteryService {
             throw new LotteryException(Responses.LOTTERY_NON_EXIST.getResponse());
         }
     }
+
 }

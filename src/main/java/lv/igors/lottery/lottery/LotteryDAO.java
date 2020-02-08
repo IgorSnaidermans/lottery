@@ -1,4 +1,4 @@
-package lv.igors.lottery.lottery.dto;
+package lv.igors.lottery.lottery;
 
 import lv.igors.lottery.lottery.Lottery;
 import org.springframework.data.repository.CrudRepository;

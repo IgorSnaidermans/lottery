@@ -10,16 +10,13 @@
 <div class="container">
     <div class="container-fluid">
         <%-- Cards --%>
-        <div class="card" style="width: 12rem;">
-            <div class="card-body">
                 <button type="button" class="btn btn-primary" data-toggle="modal"
                         data-target="#new-lottery">
                     New lottery
                 </button>
-            </div>
-        </div>
 
-        <!-- Modal -->
+
+            <!-- Modal -->
         <div class="modal fade" id="new-lottery" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
