@@ -207,13 +207,19 @@ public class LotteryService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("DD.MM.YY HH:mm");
 
         for (Lottery lottery : lotteryDAO.findAll()) {
-            statisticsList.add(StatisticsDTO.builder()
+            StatisticsDTO statisticsDTO = StatisticsDTO.builder()
                     .id(lottery.getId())
                     .title(lottery.getTitle())
                     .participants(lottery.getParticipants())
                     .startTimestamp(lottery.getStartTimestamp().format(formatter))
-                    .endTimestamp(lottery.getEndTimestamp().format(formatter))
-                    .build());
+                    .build();
+
+            if (null != lottery.getEndTimestamp()) {
+                statisticsDTO.setEndTimestamp(lottery.getEndTimestamp().format(formatter));
+            }
+
+            statisticsList.add(statisticsDTO);
+
         }
         return statisticsList;
     }

@@ -109,7 +109,7 @@ public class LotteryController {
 
     @GetMapping("/stats")
     public String getStatistics(Model model) {
-        model.addAttribute(lotteryService.getAllLotteryStatistics());
+        model.addAttribute("lotteries", lotteryService.getAllLotteryStatistics());
         return "statistics";
     }
 
