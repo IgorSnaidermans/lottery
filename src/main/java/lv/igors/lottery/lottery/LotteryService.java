@@ -88,7 +88,13 @@ public class LotteryService {
         LOGGER.info("Code registration from " + registrationDTO.getEmail() + ".Code:"
                 + registrationDTO.getCode() + ". Lottery #" + lottery.getId());
 
-        return codeService.addCode(codeDTO);
+        StatusResponse statusResponse = codeService.addCode(codeDTO);
+
+        if (statusResponse.getStatus().equals(Responses.OK.getResponse())) {
+            lottery.setParticipants(lottery.getParticipants() + 1);
+            lotteryDAO.save(lottery);
+        }
+        return statusResponse;
     }
 
     public StatusResponse stopRegistration(LotteryIdDTO lotteryId) {

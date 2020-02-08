@@ -15,13 +15,11 @@ public class RegistrationDTO {
     @NotNull
     private Long lotteryId;
     @Email
-    @NotBlank
+    @NotEmpty
     private String email;
-    @Min(21)
     @NotNull
+    @Min(21)
     private Byte age;
-    @Min(16)
-    @Max(16)
     @NotBlank
     private String code;
 }
