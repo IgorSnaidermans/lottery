@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -24,9 +25,10 @@ public class LotteryService {
     private static final Logger LOGGER = LoggerFactory.getLogger(LotteryService.class);
     private final LotteryDAO lotteryDAO;
     private final CodeService codeService;
+    private final Clock clock;
 
     public StatusResponse newLottery(NewLotteryDTO newLotteryDTO) {
-        LocalDateTime currentTimeStamp = LocalDateTime.now();
+        LocalDateTime currentTimeStamp = LocalDateTime.now(clock);
 
         if (lotteryDAO.findByTitle(newLotteryDTO.getTitle()).isPresent()) {
             return StatusResponse.builder()
