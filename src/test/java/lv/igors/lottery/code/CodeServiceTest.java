@@ -24,7 +24,7 @@ class CodeServiceTest {
     private CodeDTO codeDTO;
     private Code winnerCode;
 
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("DDMMYY");
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMYY");
     LocalDateTime localDateTime = LocalDateTime.now();
     String lotteryStartDate = localDateTime.format(formatter);
 
@@ -84,6 +84,7 @@ class CodeServiceTest {
     void shouldValidateCodeWithEmailLessThan10Symbols(){
         codeDTO.setEmail("12@456.89");
         codeDTO.setCode(lotteryStartDate + "0912345678");
+
         StatusResponse result = codeService.addCode(codeDTO);
         assertEquals("OK", result.getStatus());
     }
@@ -131,6 +132,7 @@ class CodeServiceTest {
         when(codeDao.findCodeByParticipatingCode(codeDTO.getCode()))
                 .thenReturn(Optional.ofNullable(code));
 
+
         StatusResponse statusResponse = codeService.checkWinnerCode(codeDTO, winnerCode.getParticipatingCode());
 
         assertEquals("LOSE", statusResponse.getStatus());
@@ -141,6 +143,7 @@ class CodeServiceTest {
     void checkWinnerCode_ShouldReturnCodeIsNotYours(){
         when(codeDao.findCodeByParticipatingCode(any()))
                 .thenReturn(Optional.ofNullable(winnerCode));
+
 
         StatusResponse statusResponse = codeService.checkWinnerCode(codeDTO, winnerCode.getParticipatingCode());
 
