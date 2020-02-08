@@ -1,5 +1,10 @@
+/*
 package lv.igors.lottery.lottery;
 
+import lv.igors.lottery.lottery.dto.CheckStatusDTO;
+import lv.igors.lottery.lottery.dto.LotteryDAO;
+import lv.igors.lottery.lottery.dto.NewLotteryDTO;
+import lv.igors.lottery.lottery.dto.RegistrationDTO;
 import lv.igors.lottery.statusResponse.StatusResponse;
 import lv.igors.lottery.code.Code;
 import lv.igors.lottery.code.CodeService;
@@ -261,3 +266,4 @@ class LotteryServiceTest {
     }
 }
 
+*/

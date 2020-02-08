@@ -1,6 +1,10 @@
 package lv.igors.lottery.lottery;
 
 import lombok.RequiredArgsConstructor;
+import lv.igors.lottery.lottery.dto.CheckStatusDTO;
+import lv.igors.lottery.lottery.dto.LotteryIdDTO;
+import lv.igors.lottery.lottery.dto.NewLotteryDTO;
+import lv.igors.lottery.lottery.dto.RegistrationDTO;
 import lv.igors.lottery.statusResponse.Responses;
 import lv.igors.lottery.statusResponse.StatusResponse;
 import org.springframework.stereotype.Controller;
@@ -15,6 +19,12 @@ import javax.validation.Valid;
 public class LotteryController {
     private final LotteryService lotteryService;
 
+    @GetMapping("/admin")
+    public String adminPage(Model model) {
+        model.addAttribute("lotteries", lotteryService.getAllLotteries());
+        return "admin-panel";
+    }
+
     @PostMapping("/admin/start-registration")
     public String startRegistration(Model model,
                                     @Valid @ModelAttribute NewLotteryDTO newLotteryDTO,
@@ -26,7 +36,25 @@ public class LotteryController {
 
         StatusResponse statusResponse = lotteryService.newLottery(newLotteryDTO);
         model.addAttribute(statusResponse);
-        return "admin-panel";
+        return "redirect:/admin";
+    }
+
+    @PostMapping("/admin/stop-registration")
+    public String stopRegistration(Model model,
+                                   @ModelAttribute LotteryIdDTO lotteryId) {
+
+        StatusResponse statusResponse = lotteryService.stopRegistration(lotteryId);
+        model.addAttribute(statusResponse);
+        return "redirect:/admin";
+    }
+
+    @PostMapping("/admin/choose-winner")
+    public String chooseWinner(Model model,
+                               @ModelAttribute LotteryIdDTO lotteryId) {
+
+        StatusResponse statusResponse = lotteryService.chooseWinner(lotteryId);
+        model.addAttribute(statusResponse);
+        return "redirect:/admin";
     }
 
     @PostMapping("/register")
@@ -43,25 +71,7 @@ public class LotteryController {
         if (statusResponse.getStatus().equals(Responses.OK.getResponse())) {
             model.addAttribute(lotteryService.getLotteryById(registrationDTO.getLotteryId()));
         }
-        return "lottery";
-    }
-
-    @PostMapping("/admin/stop-registration")
-    public String stopRegistration(Model model,
-                                   @PathVariable Long lotteryId) {
-
-        StatusResponse statusResponse = lotteryService.stopRegistration(lotteryId);
-        model.addAttribute(statusResponse);
-        return "admin-panel";
-    }
-
-    @PostMapping("/admin/choose-winner")
-    public String chooseWinner(Model model,
-                               @RequestParam Long lotteryId) {
-
-        StatusResponse statusResponse = lotteryService.chooseWinner(lotteryId);
-        model.addAttribute(statusResponse);
-        return "admin-panel";
+        return "redirect:/";
     }
 
     @GetMapping("/status")
@@ -81,7 +91,7 @@ public class LotteryController {
         if (statusResponse.getStatus().equals(Responses.OK.getResponse())) {
             model.addAttribute(lotteryService.getLotteryById(checkStatusDTO.getLotteryId()));
         }
-        return "lottery";
+        return "redirect:/";
     }
 
     @GetMapping("/stats")

@@ -2,9 +2,7 @@ package lv.igors.lottery.lottery;
 
 import lombok.*;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Builder
@@ -17,6 +15,7 @@ import java.time.LocalDateTime;
 @Entity(name="lotteries")
 public class Lottery {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "active")
     private boolean active;

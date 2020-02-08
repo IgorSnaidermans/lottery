@@ -16,7 +16,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .authenticationProvider(lotteryAuthenticationProvider)
                 .authorizeRequests()
-                .antMatchers("/admin/**").hasRole("ADMIN")
+                .antMatchers("/admin/**").permitAll()
                 .antMatchers("/**", "/register", "/status", "/stats", "/lottery/**").permitAll()
                 .and()
                 .formLogin().loginPage("/admin-login");

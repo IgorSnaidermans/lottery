@@ -1,17 +1,20 @@
-package lv.igors.lottery.lottery;
+package lv.igors.lottery.lottery.dto;
 
 import lombok.*;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Builder
 @Getter
 @Setter
 @EqualsAndHashCode
 @ToString
+@NoArgsConstructor
+@AllArgsConstructor
 public class NewLotteryDTO {
     @NotBlank
     String title;
-    @NotBlank
+    @NotNull
     int limit;
 }

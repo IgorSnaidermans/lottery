@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lv.igors.lottery.code.Code;
 import lv.igors.lottery.code.CodeDTO;
 import lv.igors.lottery.code.CodeService;
+import lv.igors.lottery.lottery.dto.*;
 import lv.igors.lottery.statusResponse.Responses;
 import lv.igors.lottery.statusResponse.StatusResponse;
 import org.slf4j.Logger;
@@ -90,11 +91,11 @@ public class LotteryService {
         return codeService.addCode(codeDTO);
     }
 
-    public StatusResponse stopRegistration(Long lotteryId) {
+    public StatusResponse stopRegistration(LotteryIdDTO lotteryId) {
 
         Lottery lottery;
         try {
-            lottery = getLotteryById(lotteryId);
+            lottery = getLotteryById(lotteryId.getLotteryId());
         } catch (LotteryException e) {
             return StatusResponse.builder()
                     .status(Responses.FAIL.getResponse())
@@ -105,6 +106,7 @@ public class LotteryService {
         if (lottery.isActive()) {
             LOGGER.info("Lottery #" + lottery.getId() + " stopped");
             lottery.setActive(false);
+            lotteryDAO.save(lottery);
             return StatusResponse.builder()
                     .status(Responses.OK.getResponse())
                     .build();
@@ -117,11 +119,11 @@ public class LotteryService {
         }
     }
 
-    public StatusResponse chooseWinner(Long id) {
+    public StatusResponse chooseWinner(LotteryIdDTO id) {
         Lottery lottery;
 
         try {
-            lottery = getLotteryById(id);
+            lottery = getLotteryById(id.getLotteryId());
         } catch (LotteryException e) {
             return StatusResponse.builder()
                     .status(Responses.FAIL.getResponse())
@@ -131,7 +133,7 @@ public class LotteryService {
 
         if (!lottery.isActive() && null == lottery.getWinnerCode()) {
             Random winnerChooser = new Random();
-            List<Code> participatingCodes = codeService.getAllCodesByLotteryId(id);
+            List<Code> participatingCodes = codeService.getAllCodesByLotteryId(id.getLotteryId());
             int winnerCodeInList = winnerChooser.nextInt(lottery.getParticipantsLimit());
 
             String winnerCode = participatingCodes.get(winnerCodeInList).getParticipatingCode();
@@ -174,7 +176,7 @@ public class LotteryService {
 
 
             if (!codeService.isCodeValid(codeDTO)) {
-                LOGGER.info("Code did not pass validation " + codeDTO.toString());
+                LOGGER.info("Code did not pass validation " + checkStatusDTO.toString());
                 return StatusResponse.builder()
                         .status(Responses.FAIL.getResponse())
                         .reason(Responses.CODE_INVALID.getResponse())
@@ -223,10 +225,13 @@ public class LotteryService {
         for (Lottery lottery : lotteryDAO.findAll()) {
             LotteryDTO lotteryDTO = LotteryDTO.builder()
                     .id(lottery.getId())
-                    .endTimestamp(lottery.getEndTimestamp().format(dateTimeFormatter))
                     .startTimestamp(lottery.getStartTimestamp().format(dateTimeFormatter))
                     .title(lottery.getTitle())
                     .build();
+
+            if (null != lottery.getEndTimestamp()) {
+                lotteryDTO.setEndTimestamp(lottery.getEndTimestamp().format(dateTimeFormatter));
+            }
 
             lotteryList.add(lotteryDTO);
         }
