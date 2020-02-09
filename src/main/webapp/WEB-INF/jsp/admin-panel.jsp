@@ -82,7 +82,6 @@
                                         Winner code: <c:if test="${!lotteryTimeFormattedDTO.winnerCode}">
                                         ${lotteryTimeFormattedDTO.winnerCode}<br/>
                                         Winner email: ${lotteryTimeFormattedDTO.winnerEmail}</c:if>
-                                        <c:if test="${lotteryTimeFormattedDTO.winnerCode}">No</c:if>
                                         <br/>
                                         Started: ${lotteryTimeFormattedDTO.startTimestampFormatted}
                                         <br/>Ended: <c:if

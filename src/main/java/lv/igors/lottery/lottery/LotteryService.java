@@ -248,6 +248,7 @@ public class LotteryService {
         for (Lottery lottery : lotteryDAO.findAll()) {
             LotteryDTO lotteryDTO = LotteryDTO.builder()
                     .id(lottery.getId())
+                    .active(lottery.isActive())
                     .startTimestamp(lottery.getStartTimestamp().format(dateTimeFormatter))
                     .title(lottery.getTitle())
                     .build();

@@ -9,6 +9,7 @@ import lombok.*;
 @ToString
 public class LotteryDTO {
     private Long id;
+    private Boolean active;
     private String title;
     private String startTimestamp;
     private String endTimestamp;
