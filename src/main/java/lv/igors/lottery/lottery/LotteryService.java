@@ -3,12 +3,14 @@ package lv.igors.lottery.lottery;
 import lombok.RequiredArgsConstructor;
 import lv.igors.lottery.code.Code;
 import lv.igors.lottery.code.CodeDTO;
+import lv.igors.lottery.code.CodeException;
 import lv.igors.lottery.code.CodeService;
 import lv.igors.lottery.lottery.dto.*;
 import lv.igors.lottery.statusResponse.Responses;
 import lv.igors.lottery.statusResponse.StatusResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
@@ -26,10 +28,14 @@ public class LotteryService {
     private final LotteryDAO lotteryDAO;
     private final CodeService codeService;
     private final Clock clock;
+    private LocalDateTime currentTimeStamp;
+
+    @Bean
+    public LocalDateTime getCurrentTimeStamp() {
+        return currentTimeStamp = LocalDateTime.now(clock);
+    }
 
     public StatusResponse newLottery(NewLotteryDTO newLotteryDTO) {
-        LocalDateTime currentTimeStamp = LocalDateTime.now(clock);
-
         if (lotteryDAO.findByTitle(newLotteryDTO.getTitle()).isPresent()) {
             return StatusResponse.builder()
                     .status("Fail")
@@ -100,8 +106,8 @@ public class LotteryService {
     }
 
     public StatusResponse stopRegistration(LotteryIdDTO lotteryId) {
-
         Lottery lottery;
+
         try {
             lottery = getLotteryById(lotteryId.getLotteryId());
         } catch (LotteryException e) {
@@ -114,6 +120,7 @@ public class LotteryService {
         if (lottery.isActive()) {
             LOGGER.info("Lottery #" + lottery.getId() + " stopped");
             lottery.setActive(false);
+            lottery.setEndTimestamp(currentTimeStamp);
             lotteryDAO.save(lottery);
             return StatusResponse.builder()
                     .status(Responses.OK.getResponse())
@@ -146,6 +153,8 @@ public class LotteryService {
 
             String winnerCode = participatingCodes.get(winnerCodeInList).getParticipatingCode();
             LOGGER.info("Lottery #" + lottery.getId() + ". Chosen winner code: " + winnerCode);
+            lottery.setWinnerCode(winnerCode);
+            lotteryDAO.save(lottery);
             return StatusResponse.builder()
                     .status(Responses.OK.getResponse())
                     .winnerCode(winnerCode)
@@ -232,7 +241,7 @@ public class LotteryService {
         return statisticsList;
     }
 
-    public List<LotteryDTO> getAllLotteries() {
+    public List<LotteryDTO> getAllLotteriesToLotteryDTO() {
         List<LotteryDTO> lotteryList = new ArrayList<>();
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.YY HH:mm");
 
@@ -253,8 +262,34 @@ public class LotteryService {
         return lotteryList;
     }
 
-    public Lottery getLotteryById(Long id) throws LotteryException {
+    public List<LotteryTimeFormattedDTO> getAllLotteriesAdminDTO() throws CodeException {
+        List<LotteryTimeFormattedDTO> lotteryList = new ArrayList<>();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.YY HH:mm");
 
+        for (Lottery lottery : lotteryDAO.findAll()) {
+
+            LotteryTimeFormattedDTO lotteryTimeFormattedDTO = LotteryTimeFormattedDTO.builder()
+                    .startTimestampFormatted(lottery.getStartTimestamp().format(dateTimeFormatter))
+                    .active(lottery.isActive())
+                    .id(lottery.getId())
+                    .participants(lottery.getParticipants())
+                    .participantsLimit(lottery.getParticipantsLimit())
+                    .title(lottery.getTitle())
+                    .winnerCode(lottery.getWinnerCode())
+                    .winnerEmail(codeService.getCodeByParticipatingCode(lottery.getWinnerCode()).getOwnerEmail())
+                    .build();
+
+            if (null != lottery.getEndTimestamp()) {
+                lotteryTimeFormattedDTO.setEndTimestampFormatted(lottery.getEndTimestamp().format(dateTimeFormatter));
+            }
+
+            lotteryList.add(lotteryTimeFormattedDTO);
+        }
+
+        return lotteryList;
+    }
+
+    public Lottery getLotteryById(Long id) throws LotteryException {
         Optional<Lottery> possibleLottery = lotteryDAO.findById(id);
 
         if (possibleLottery.isPresent()) {

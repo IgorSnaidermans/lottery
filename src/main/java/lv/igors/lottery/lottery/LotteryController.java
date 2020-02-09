@@ -1,6 +1,7 @@
 package lv.igors.lottery.lottery;
 
 import lombok.RequiredArgsConstructor;
+import lv.igors.lottery.code.CodeException;
 import lv.igors.lottery.lottery.dto.CheckStatusDTO;
 import lv.igors.lottery.lottery.dto.LotteryIdDTO;
 import lv.igors.lottery.lottery.dto.NewLotteryDTO;
@@ -29,8 +30,8 @@ public class LotteryController {
     private final LotteryService lotteryService;
 
     @GetMapping("/admin")
-    public String adminPage(Model model) {
-        model.addAttribute("lotteries", lotteryService.getAllLotteries());
+    public String adminPage(Model model) throws CodeException {
+        model.addAttribute("lotteries", lotteryService.getAllLotteriesAdminDTO());
         return "admin-panel";
     }
 
@@ -39,21 +40,11 @@ public class LotteryController {
                                                     @Valid @ModelAttribute NewLotteryDTO newLotteryDTO,
                                                     BindingResult bindingResult) {
 
-        if (validationError(model, bindingResult)) return new ResponseEntity<>("error", HttpStatus.BAD_REQUEST);
-
+        if (isValidationError(model, bindingResult)) return new ResponseEntity<>("error", HttpStatus.BAD_REQUEST);
         StatusResponse statusResponse = lotteryService.newLottery(newLotteryDTO);
-        if (serviceError(model, statusResponse)) return new ResponseEntity<>("error", HttpStatus.BAD_REQUEST);
+        if (isServiceError(model, statusResponse)) return new ResponseEntity<>("error", HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>("redirect:/admin", HttpStatus.OK);
     }
-
-    private boolean serviceError(Model model, StatusResponse statusResponse) {
-        if (statusResponse.getStatus().equals(Responses.FAIL.getResponse())) {
-            model.addAttribute("statusResponse", statusResponse);
-            return true;
-        }
-        return false;
-    }
-
 
     @PostMapping("/admin/stop-registration")
     public ResponseEntity<String> stopRegistration(Model model,
@@ -61,9 +52,9 @@ public class LotteryController {
                                                    BindingResult bindingResult) {
 
 
-        if (validationError(model, bindingResult)) return new ResponseEntity<>("error", HttpStatus.BAD_REQUEST);
+        if (isValidationError(model, bindingResult)) return new ResponseEntity<>("error", HttpStatus.BAD_REQUEST);
         StatusResponse statusResponse = lotteryService.stopRegistration(lotteryId);
-        if (serviceError(model, statusResponse)) return new ResponseEntity<>("error", HttpStatus.BAD_REQUEST);
+        if (isServiceError(model, statusResponse)) return new ResponseEntity<>("error", HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>("redirect:/admin", HttpStatus.OK);
     }
 
@@ -72,9 +63,9 @@ public class LotteryController {
                                                @Valid @ModelAttribute LotteryIdDTO lotteryId,
                                                BindingResult bindingResult) {
 
-        if (validationError(model, bindingResult)) return new ResponseEntity<>("error", HttpStatus.BAD_REQUEST);
+        if (isValidationError(model, bindingResult)) return new ResponseEntity<>("error", HttpStatus.BAD_REQUEST);
         StatusResponse statusResponse = lotteryService.chooseWinner(lotteryId);
-        if (serviceError(model, statusResponse)) return new ResponseEntity<>("error", HttpStatus.BAD_REQUEST);
+        if (isServiceError(model, statusResponse)) return new ResponseEntity<>("error", HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>("redirect:/admin", HttpStatus.OK);
     }
 
@@ -84,9 +75,9 @@ public class LotteryController {
                                                     BindingResult bindingResult) {
 
 
-        if (validationError(model, bindingResult)) return new ResponseEntity<>("error", HttpStatus.BAD_REQUEST);
+        if (isValidationError(model, bindingResult)) return new ResponseEntity<>("error", HttpStatus.BAD_REQUEST);
         StatusResponse statusResponse = lotteryService.registerCode(registrationDTO);
-        if (serviceError(model, statusResponse)) return new ResponseEntity<>("error", HttpStatus.BAD_REQUEST);
+        if (isServiceError(model, statusResponse)) return new ResponseEntity<>("error", HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>("redirect:/", HttpStatus.OK);
     }
 
@@ -105,9 +96,9 @@ public class LotteryController {
                 .age(age)
                 .build();
 
-        if (validationError(model, bindingResult)) return new ResponseEntity<>("error", HttpStatus.BAD_REQUEST);
+        if (isValidationError(model, bindingResult)) return new ResponseEntity<>("error", HttpStatus.BAD_REQUEST);
         StatusResponse statusResponse = lotteryService.getWinnerStatus(checkStatusDTO);
-        if (serviceError(model, statusResponse)) return new ResponseEntity<>("error", HttpStatus.BAD_REQUEST);
+        if (isServiceError(model, statusResponse)) return new ResponseEntity<>("error", HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>("redirect:/", HttpStatus.OK);
     }
 
@@ -135,11 +126,19 @@ public class LotteryController {
 
     @GetMapping("/")
     public String homePage(Model model) {
-        model.addAttribute("lotteries", lotteryService.getAllLotteries());
+        model.addAttribute("lotteries", lotteryService.getAllLotteriesToLotteryDTO());
         return "lotteries";
     }
 
-    private boolean validationError(Model model, BindingResult bindingResult) {
+    private boolean isServiceError(Model model, StatusResponse statusResponse) {
+        if (statusResponse.getStatus().equals(Responses.FAIL.getResponse())) {
+            model.addAttribute("statusResponse", statusResponse);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isValidationError(Model model, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             List<String> errors = new ArrayList<>();
             for (FieldError error : bindingResult.getFieldErrors()) {
