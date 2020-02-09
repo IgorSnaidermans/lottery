@@ -36,7 +36,9 @@ public class LotteryService {
     }
 
     public StatusResponse newLottery(NewLotteryDTO newLotteryDTO) {
+        LOGGER.info("Creating new lottery for " + newLotteryDTO);
         if (lotteryDAO.findByTitle(newLotteryDTO.getTitle()).isPresent()) {
+            LOGGER.warn("Create lottery failed due to title already exist for " + newLotteryDTO);
             return StatusResponse.builder()
                     .status("Fail")
                     .reason("This lottery title already exist")
@@ -49,9 +51,8 @@ public class LotteryService {
                 .startTimestamp(currentTimeStamp)
                 .participantsLimit(newLotteryDTO.getLimit())
                 .build();
-
         lotteryDAO.save(lottery);
-
+        LOGGER.info("Created lottery successfully for " + newLotteryDTO);
         return StatusResponse.builder()
                 .id(lottery.getId())
                 .status("OK")
@@ -59,6 +60,7 @@ public class LotteryService {
     }
 
     public StatusResponse registerCode(RegistrationDTO registrationDTO) {
+        LOGGER.info("Registering code for " + registrationDTO);
         Lottery lottery;
 
         try {
@@ -106,6 +108,7 @@ public class LotteryService {
     }
 
     public StatusResponse stopRegistration(LotteryIdDTO lotteryId) {
+        LOGGER.info("Stopping registration for " + lotteryId);
         Lottery lottery;
 
         try {
@@ -135,6 +138,7 @@ public class LotteryService {
     }
 
     public StatusResponse chooseWinner(LotteryIdDTO id) {
+        LOGGER.info("Choosing winner for lottery #" + id);
         Lottery lottery;
 
         try {
@@ -181,6 +185,7 @@ public class LotteryService {
     }
 
     public StatusResponse getWinnerStatus(CheckStatusDTO checkStatusDTO) {
+        LOGGER.info("Getting winner status for" + checkStatusDTO);
         try {
             Lottery lottery = getLotteryById(checkStatusDTO.getLotteryId());
             String lotteryWinningCode = lottery.getWinnerCode();
@@ -220,6 +225,7 @@ public class LotteryService {
     }
 
     public List<StatisticsDTO> getAllLotteryStatistics() {
+        LOGGER.info("Getting lottery statistics");
         List<StatisticsDTO> statisticsList = new ArrayList<>();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("DD.MM.YY HH:mm");
 
@@ -242,6 +248,7 @@ public class LotteryService {
     }
 
     public List<LotteryDTO> getAllLotteriesToLotteryDTO() {
+        LOGGER.info("Getting all lotteries for user");
         List<LotteryDTO> lotteryList = new ArrayList<>();
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.YY HH:mm");
 
@@ -264,6 +271,7 @@ public class LotteryService {
     }
 
     public List<LotteryAdminDTO> getAllLotteriesAdminDTO() {
+        LOGGER.info("Getting all lotteries for admin");
         List<LotteryAdminDTO> lotteryList = new ArrayList<>();
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.YY HH:mm");
 
@@ -297,6 +305,7 @@ public class LotteryService {
     }
 
     public Lottery getLotteryById(Long id) throws LotteryException {
+        LOGGER.info("Getting lottery #" + id);
         Optional<Lottery> possibleLottery = lotteryDAO.findById(id);
 
         if (possibleLottery.isPresent()) {

@@ -19,7 +19,9 @@ public class CodeService {
     private final CodeDAO codeDAO;
 
     public boolean isCodeValid(CodeDTO codeDTO) {
+        LOGGER.info("Validating code " + codeDTO);
         if (codeDTO.getCode().length() != 16) {
+            LOGGER.warn("Could not validate code - too small " + codeDTO);
             return false;
         }
         String requestedCode = codeDTO.getCode();
@@ -76,6 +78,7 @@ public class CodeService {
     }
 
     public StatusResponse checkWinnerCode(CodeDTO codeDTO, String lotteryWinningCode) {
+        LOGGER.info("Checking winning status for " + codeDTO);
         if (!isCodeValid(codeDTO)) {
             return StatusResponse.builder()
                     .status(Responses.FAIL.getResponse())
@@ -119,23 +122,26 @@ public class CodeService {
     }
 
     private boolean checkCodeOwner(Code code) throws CodeException {
+        LOGGER.info("Checking code owner for " + code);
         String requestedCodeOwnerEmail = getCodeByParticipatingCode(code.getParticipatingCode())
                 .getOwnerEmail();
         return requestedCodeOwnerEmail.equals(code.getOwnerEmail());
     }
 
     public Code getCodeByParticipatingCode(String code) throws CodeException {
+        LOGGER.info("Getting code information for code:" + code);
         Optional<Code> possibleCode = codeDAO.findCodeByParticipatingCode(code);
 
         if (possibleCode.isPresent()) {
             return possibleCode.get();
         } else {
-            LOGGER.warn("Could not find code " + code);
+            LOGGER.warn("Could not find code information for code:" + code);
             throw new CodeException(Responses.CODE_NON_EXIST.getResponse());
         }
     }
 
     public List<Code> getAllCodesByLotteryId(Long id) {
+        LOGGER.info("Getting all codes information by lottery id #" + id);
         return new ArrayList<>(codeDAO.findCodesByLotteryId(id));
     }
 }
