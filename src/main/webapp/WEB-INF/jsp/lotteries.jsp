@@ -52,14 +52,16 @@
                                     <form action="/register">
                                         <input type="hidden" name="lotteryId" value="${lotteryDTO.id}">
                                         <div class="form-group">
-                                            <input name="email" type="email" class="form-control"
+                                            <input required="required" name="email" type="email" class="form-control"
                                                    aria-describedby="emailHelp" placeholder="Enter email">
                                         </div>
                                         <div class="form-group">
-                                            <input name="code" class="form-control" placeholder="Enter code">
+                                            <input required="required" name="code" class="form-control"
+                                                   placeholder="Enter code">
                                         </div>
                                         <div class="form-group">
-                                            <input name="age" class="form-control" placeholder="Your age">
+                                            <input required="required" name="age" class="form-control"
+                                                   placeholder="Your age">
                                         </div>
                                         <button type="submit" class="btn btn-primary" formmethod="post">Register
                                         </button>

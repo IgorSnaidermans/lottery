@@ -10,14 +10,12 @@ public enum Responses {
     LOTTERY_FINISHED("Lottery is finished"),
     LOTTERY_STATUS_PENDING("PENDING"),
     LOTTERY_NON_EXIST("Lottery does not exist"),
-    LOTTERY_SMALL_AGE("Lottery registration only from 21 years"),
     CODE_EXIST("Code already exists"),
     CODE_FOREIGN_CODE("The code is not yours"),
     CODE_WIN("WIN"),
     CODE_LOSE("LOSE"),
     CODE_NON_EXIST("Code doesnt exist"),
     CODE_INVALID("Invalid code");
-
 
     private String title;
 

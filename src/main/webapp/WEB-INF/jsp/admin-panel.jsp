@@ -30,10 +30,10 @@
                         <form action="/admin/start-registration" method="post">
                             <input type="hidden" name="lotteryId" value="${lotteryDTO.id}">
                             <div class="form-group">
-                                <input name="title" class="form-control" placeholder="Enter title">
+                                <input required="required" name="title" class="form-control" placeholder="Enter title">
                             </div>
                             <div class="form-group">
-                                <input name="limit" class="form-control" placeholder="Enter limit">
+                                <input required="required" name="limit" class="form-control" placeholder="Enter limit">
                             </div>
                             <button type="submit" class="btn btn-primary">Create</button>
 
@@ -42,8 +42,8 @@
                 </div>
             </div>
         </div>
-        <div class="row">
-            <c:forEach items="${lotteries}" var="lotteryDTO">
+            <div class="row">
+                <c:forEach items="${lotteries}" var="lotteryDTO">
                 <%-- Cards --%>
                 <div class="card" style="width: 18rem;">
                     <div class="card-body">

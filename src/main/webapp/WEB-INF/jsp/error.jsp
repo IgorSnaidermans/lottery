@@ -11,8 +11,8 @@
 <div class="card" style="width: 20rem;">
     <div class="card-body">
         <p>An error happened: ${statusResponse.reason}</p>
-        ${bindingResult.globalError.toString()}
-        <a href="/${back}" class="btn btn-primary">
+        ${errors}
+        <a href="/" class="btn btn-primary">
             Back
         </a>
     </div>

@@ -2,7 +2,7 @@ package lv.igors.lottery.lottery.dto;
 
 import lombok.*;
 
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 @Builder
@@ -13,8 +13,8 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NewLotteryDTO {
-    @NotBlank
+    @NotEmpty(message = "Title may not be null or empty")
     String title;
-    @NotNull
+    @NotNull(message = "Limit may not be null")
     int limit;
 }
