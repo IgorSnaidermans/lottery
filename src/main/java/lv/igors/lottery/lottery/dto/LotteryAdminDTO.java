@@ -8,7 +8,7 @@ import lombok.*;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class LotteryTimeFormattedDTO {
+public class LotteryAdminDTO {
     private String startTimestampFormatted;
     private String endTimestampFormatted;
     private Long id;

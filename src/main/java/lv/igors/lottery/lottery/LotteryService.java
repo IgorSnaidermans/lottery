@@ -263,13 +263,13 @@ public class LotteryService {
         return lotteryList;
     }
 
-    public List<LotteryTimeFormattedDTO> getAllLotteriesAdminDTO() throws CodeException {
-        List<LotteryTimeFormattedDTO> lotteryList = new ArrayList<>();
+    public List<LotteryAdminDTO> getAllLotteriesAdminDTO() {
+        List<LotteryAdminDTO> lotteryList = new ArrayList<>();
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.YY HH:mm");
 
         for (Lottery lottery : lotteryDAO.findAll()) {
 
-            LotteryTimeFormattedDTO lotteryTimeFormattedDTO = LotteryTimeFormattedDTO.builder()
+            LotteryAdminDTO lotteryAdminDTO = LotteryAdminDTO.builder()
                     .startTimestampFormatted(lottery.getStartTimestamp().format(dateTimeFormatter))
                     .active(lottery.isActive())
                     .id(lottery.getId())
@@ -277,14 +277,20 @@ public class LotteryService {
                     .participantsLimit(lottery.getParticipantsLimit())
                     .title(lottery.getTitle())
                     .winnerCode(lottery.getWinnerCode())
-                    .winnerEmail(codeService.getCodeByParticipatingCode(lottery.getWinnerCode()).getOwnerEmail())
                     .build();
 
-            if (null != lottery.getEndTimestamp()) {
-                lotteryTimeFormattedDTO.setEndTimestampFormatted(lottery.getEndTimestamp().format(dateTimeFormatter));
+            if (null != lottery.getWinnerCode()) {
+                try {
+                    lottery.setWinnerCode(codeService.getCodeByParticipatingCode(lottery.getWinnerCode()).getOwnerEmail());
+                } catch (CodeException ignored) {
+                }
+
+                if (null != lottery.getEndTimestamp()) {
+                    lotteryAdminDTO.setEndTimestampFormatted(lottery.getEndTimestamp().format(dateTimeFormatter));
+                }
             }
 
-            lotteryList.add(lotteryTimeFormattedDTO);
+            lotteryList.add(lotteryAdminDTO);
         }
 
         return lotteryList;

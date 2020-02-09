@@ -30,64 +30,64 @@ public class LotteryController {
     private final LotteryService lotteryService;
 
     @GetMapping("/admin")
-    public String adminPage(Model model) throws CodeException {
+    public String adminPage(Model model) {
         model.addAttribute("lotteries", lotteryService.getAllLotteriesAdminDTO());
         return "admin-panel";
     }
 
     @PostMapping("/admin/start-registration")
-    public ResponseEntity<String> startRegistration(Model model,
-                                                    @Valid @ModelAttribute NewLotteryDTO newLotteryDTO,
-                                                    BindingResult bindingResult) {
+    public String startRegistration(Model model,
+                                    @Valid @ModelAttribute NewLotteryDTO newLotteryDTO,
+                                    BindingResult bindingResult) {
 
-        if (isValidationError(model, bindingResult)) return new ResponseEntity<>("error", HttpStatus.BAD_REQUEST);
+        if (isValidationError(model, bindingResult)) return "error";
         StatusResponse statusResponse = lotteryService.newLottery(newLotteryDTO);
-        if (isServiceError(model, statusResponse)) return new ResponseEntity<>("error", HttpStatus.BAD_REQUEST);
-        return new ResponseEntity<>("redirect:/admin", HttpStatus.OK);
+        if (isServiceError(model, statusResponse)) return ("error");
+        return "redirect:/admin";
     }
 
     @PostMapping("/admin/stop-registration")
-    public ResponseEntity<String> stopRegistration(Model model,
-                                                   @Valid @ModelAttribute LotteryIdDTO lotteryId,
-                                                   BindingResult bindingResult) {
+    public String stopRegistration(Model model,
+                                   @Valid @ModelAttribute LotteryIdDTO lotteryId,
+                                   BindingResult bindingResult) {
 
 
-        if (isValidationError(model, bindingResult)) return new ResponseEntity<>("error", HttpStatus.BAD_REQUEST);
+        if (isValidationError(model, bindingResult)) return "error";
         StatusResponse statusResponse = lotteryService.stopRegistration(lotteryId);
-        if (isServiceError(model, statusResponse)) return new ResponseEntity<>("error", HttpStatus.BAD_REQUEST);
-        return new ResponseEntity<>("redirect:/admin", HttpStatus.OK);
+        if (isServiceError(model, statusResponse)) return ("error");
+        return "redirect:/admin";
     }
 
     @PostMapping("/admin/choose-winner")
-    public ResponseEntity<String> chooseWinner(Model model,
-                                               @Valid @ModelAttribute LotteryIdDTO lotteryId,
-                                               BindingResult bindingResult) {
+    public String chooseWinner(Model model,
+                               @Valid @ModelAttribute LotteryIdDTO lotteryId,
+                               BindingResult bindingResult) {
 
-        if (isValidationError(model, bindingResult)) return new ResponseEntity<>("error", HttpStatus.BAD_REQUEST);
+        if (isValidationError(model, bindingResult)) return "error";
         StatusResponse statusResponse = lotteryService.chooseWinner(lotteryId);
-        if (isServiceError(model, statusResponse)) return new ResponseEntity<>("error", HttpStatus.BAD_REQUEST);
-        return new ResponseEntity<>("redirect:/admin", HttpStatus.OK);
+        if (isServiceError(model, statusResponse)) return ("error");
+        return "redirect:/admin";
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerToLottery(Model model,
-                                                    @Valid @ModelAttribute RegistrationDTO registrationDTO,
-                                                    BindingResult bindingResult) {
+    public String registerToLottery(Model model,
+                                    @Valid @ModelAttribute RegistrationDTO registrationDTO,
+                                    BindingResult bindingResult) {
 
 
-        if (isValidationError(model, bindingResult)) return new ResponseEntity<>("error", HttpStatus.BAD_REQUEST);
+        if (isValidationError(model, bindingResult)) return "error";
         StatusResponse statusResponse = lotteryService.registerCode(registrationDTO);
-        if (isServiceError(model, statusResponse)) return new ResponseEntity<>("error", HttpStatus.BAD_REQUEST);
-        return new ResponseEntity<>("redirect:/", HttpStatus.OK);
+        if (isServiceError(model, statusResponse)) return ("error");
+        return "redirect:/admin";
     }
 
     @GetMapping("/status")
-    public ResponseEntity<String> checkWinnerStatus(Model model,
-                                                    @RequestParam("lotteryId") Long id,
-                                                    @RequestParam("email") String email,
-                                                    @RequestParam("code") String code,
-                                                    @RequestParam("age") Byte age,
-                                                    BindingResult bindingResult) {
+    public String checkWinnerStatus(Model model,
+                                    @RequestParam("lotteryId") Long id,
+                                    @RequestParam("email") String email,
+                                    @RequestParam("code") String code,
+                                    @RequestParam("age") Byte age,
+                                    BindingResult bindingResult) {
 
         CheckStatusDTO checkStatusDTO = CheckStatusDTO.builder()
                 .code(code)
@@ -96,10 +96,10 @@ public class LotteryController {
                 .age(age)
                 .build();
 
-        if (isValidationError(model, bindingResult)) return new ResponseEntity<>("error", HttpStatus.BAD_REQUEST);
+        if (isValidationError(model, bindingResult)) return "error";
         StatusResponse statusResponse = lotteryService.getWinnerStatus(checkStatusDTO);
-        if (isServiceError(model, statusResponse)) return new ResponseEntity<>("error", HttpStatus.BAD_REQUEST);
-        return new ResponseEntity<>("redirect:/", HttpStatus.OK);
+        if (isServiceError(model, statusResponse)) return ("error");
+        return "redirect:/admin";
     }
 
     @GetMapping("/stats")
