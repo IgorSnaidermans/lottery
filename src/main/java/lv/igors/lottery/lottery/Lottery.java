@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name="lotteries")
+@Entity(name = "lotteries")
 public class Lottery {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

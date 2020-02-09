@@ -1,15 +1,12 @@
 package lv.igors.lottery.lottery;
 
 import lombok.RequiredArgsConstructor;
-import lv.igors.lottery.code.CodeException;
 import lv.igors.lottery.lottery.dto.CheckStatusDTO;
 import lv.igors.lottery.lottery.dto.LotteryIdDTO;
 import lv.igors.lottery.lottery.dto.NewLotteryDTO;
 import lv.igors.lottery.lottery.dto.RegistrationDTO;
 import lv.igors.lottery.statusResponse.Responses;
 import lv.igors.lottery.statusResponse.StatusResponse;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;

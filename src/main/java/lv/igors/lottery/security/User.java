@@ -13,7 +13,7 @@ import javax.persistence.Id;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity(name="users")
+@Entity(name = "users")
 public class User {
 
     @Id

@@ -15,7 +15,7 @@ public class DataSourceConfiguration {
     private static final String DB_DRIVER = "org.postgresql.Driver";
 
     @Bean
-    DataSource dataSource(){
+    DataSource dataSource() {
         BasicDataSource ds = new BasicDataSource();
         ds.setUrl(DB_URL);
         ds.setUsername(DB_USER);

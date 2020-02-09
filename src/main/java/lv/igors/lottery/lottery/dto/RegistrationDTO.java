@@ -2,9 +2,10 @@ package lv.igors.lottery.lottery.dto;
 
 import lombok.*;
 
-import javax.validation.constraints.*;
-
-import lv.igors.lottery.statusResponse.Responses;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 @Builder
 @Getter

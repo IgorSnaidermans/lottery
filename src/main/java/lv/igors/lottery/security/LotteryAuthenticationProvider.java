@@ -37,7 +37,7 @@ public class LotteryAuthenticationProvider implements AuthenticationProvider {
                         user.getName(),
                         user.getPassword(),
                         List.of(new SimpleGrantedAuthority("ADMIN")));
-            }else {
+            } else {
                 throw new BadCredentialsException("Wrong username or password");
             }
         } else {
