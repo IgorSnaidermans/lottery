@@ -17,6 +17,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -84,11 +88,19 @@ public class LotteryController {
 
     @GetMapping("/status")
     public String checkWinnerStatus(Model model,
+                                    @NotNull(message = "Id must not be null")
                                     @RequestParam("lotteryId") Long id,
+
+                                    @Email(message = "Email is invalid")
+                                    @NotEmpty(message = "email cannot be empty or null")
                                     @RequestParam("email") String email,
+
+                                    @NotEmpty(message = "Code cannot be empty or null")
                                     @RequestParam("code") String code,
-                                    @RequestParam("age") Byte age,
-                                    BindingResult bindingResult) {
+
+                                    @NotNull(message = "Age cannot be null")
+                                    @Min(value = 21, message = "Must be 21 or older")
+                                    @RequestParam("age") Byte age) {
 
         RegistrationDTO registrationDTO = RegistrationDTO.builder()
                 .code(code)
@@ -97,11 +109,13 @@ public class LotteryController {
                 .age(age)
                 .build();
 
-        codeValidator.validate(registrationDTO, bindingResult);
+        StatusResponse statusResponse = StatusResponse.builder().build();
 
-        if (isValidationError(model, bindingResult)) return "error";
-        StatusResponse statusResponse = lotteryService.getWinnerStatus(registrationDTO);
-        if (isServiceError(model, statusResponse)) return ("error");
+        codeValidator.validate(registrationDTO, statusResponse);
+
+        if (isValidationError(model, statusResponse)) return "error";
+        statusResponse = lotteryService.getWinnerStatus(registrationDTO);
+        if (isServiceError(model, statusResponse)) return "error";
         return "redirect:/admin";
     }
 
@@ -154,4 +168,16 @@ public class LotteryController {
         }
         return false;
     }
+
+    private boolean isValidationError(Model model, StatusResponse statusResponse) {
+
+        if (statusResponse.getStatus().equals(Responses.FAIL.getResponse())) {
+
+            model.addAttribute("errorsStatusResponse", statusResponse);
+            return true;
+        }
+        return false;
+    }
+
+
 }
