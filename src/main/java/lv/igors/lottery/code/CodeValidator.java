@@ -34,7 +34,7 @@ public class CodeValidator implements Validator {
         LOGGER.info("Validating code " + registrationDTO);
         if (registrationDTO.getCode().length() != 16) {
             LOGGER.warn("Could not validate code - too small " + registrationDTO);
-            errors.rejectValue("code", "invalid code");
+            errors.rejectValue("code", "min", "invalid code");
             return;
         }
         String requestedCode = registrationDTO.getCode();
@@ -48,7 +48,7 @@ public class CodeValidator implements Validator {
             lotteryStartTimeStamp = lotteryService.getLotteryById(registrationDTO.getLotteryId())
                     .getStartTimestamp();
         } catch (LotteryException e) {
-            errors.rejectValue("id", "Lottery doesn't exist");
+            errors.rejectValue("id", "Lottery doesn't exist", "Lottery doesn't exist");
             return;
         }
 
@@ -61,9 +61,14 @@ public class CodeValidator implements Validator {
             emailLetterCount = "" + registrationDTO.getEmail().length();
         }
 
-        if (!datePart.equals(lotteryStartDate) || !(emailPart.equals(emailLetterCount))) {
-            LOGGER.warn("Code did not pass validation " + registrationDTO);
-            errors.rejectValue("code", "invalid code");
+        if (!datePart.equals(lotteryStartDate)) {
+            LOGGER.warn("Code did not pass validation lottery start date doesn't match " + registrationDTO);
+            errors.rejectValue("code", "lottery start date", "invalid code");
+        }
+
+        if (!emailPart.equals(emailLetterCount)) {
+            LOGGER.warn("Code did not pass validation email letters doesn't match " + registrationDTO);
+            errors.rejectValue("code", "email letters", "invalid code");
         }
     }
 }

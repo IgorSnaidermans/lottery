@@ -74,7 +74,9 @@ public class LotteryController {
 
         codeValidator.validate(registrationDTO, bindingResult);
 
-        if (isValidationError(model, bindingResult)) return "error";
+        if (isValidationError(model, bindingResult)) {
+            return "error";
+        }
         StatusResponse statusResponse = lotteryService.registerCode(registrationDTO);
         if (isServiceError(model, statusResponse)) return ("error");
         return "redirect:/admin";
@@ -140,6 +142,7 @@ public class LotteryController {
     }
 
     private boolean isValidationError(Model model, BindingResult bindingResult) {
+
         if (bindingResult.hasErrors()) {
             List<String> errors = new ArrayList<>();
             for (FieldError error : bindingResult.getFieldErrors()) {

@@ -10,8 +10,10 @@
 
 <div class="card" style="width: 20rem;">
     <div class="card-body">
-        <p>An error happened: ${statusResponse.reason}</p>
-        ${errors}
+        <p>An error happened ${statusResponse.reason}</p>
+        <c:forEach items="${errors}" var="error">
+            <p>${error}</p>
+        </c:forEach>
         <a href="/" class="btn btn-primary">
             Back
         </a>
