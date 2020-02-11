@@ -1,7 +1,7 @@
 package lv.igors.lottery.lottery;
 
 import lombok.RequiredArgsConstructor;
-import lv.igors.lottery.CodeValidator;
+import lv.igors.lottery.code.CodeValidator;
 import lv.igors.lottery.lottery.dto.LotteryIdDTO;
 import lv.igors.lottery.lottery.dto.NewLotteryDTO;
 import lv.igors.lottery.lottery.dto.RegistrationDTO;

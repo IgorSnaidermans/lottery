@@ -1,7 +1,6 @@
-package lv.igors.lottery;
+package lv.igors.lottery.code;
 
 
-import lv.igors.lottery.code.CodeDTO;
 import lv.igors.lottery.lottery.LotteryException;
 import lv.igors.lottery.lottery.LotteryService;
 import lv.igors.lottery.lottery.dto.RegistrationDTO;
