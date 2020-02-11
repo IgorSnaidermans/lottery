@@ -21,7 +21,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/", "/register", "/status", "/stats", "/lottery/**").permitAll()
                 .and()
                 .authorizeRequests()
-                .antMatchers("/admin/**").permitAll()//.hasAuthority("ADMIN")
+                .antMatchers("/admin/**").hasAuthority("ADMIN")
                 .and()
                 .formLogin()
                 .loginPage("/admin-login").permitAll()
