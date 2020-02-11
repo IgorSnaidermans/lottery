@@ -1,6 +1,5 @@
 package lv.igors.lottery.lottery;
 
-import lv.igors.lottery.lottery.dto.CheckStatusDTO;
 import lv.igors.lottery.lottery.dto.LotteryIdDTO;
 import lv.igors.lottery.lottery.dto.NewLotteryDTO;
 import lv.igors.lottery.lottery.dto.RegistrationDTO;
@@ -36,7 +35,6 @@ class LotteryServiceTest {
     private RegistrationDTO registrationDTO;
     private Lottery validLottery;
     private NewLotteryDTO newLotteryDTO;
-    private CheckStatusDTO checkStatusDTO;
     private LotteryIdDTO lotteryIdDTO;
     final String REG_CODE = "0502981392837465";
     final String EMAIL = "some@mail.com";
@@ -55,12 +53,6 @@ class LotteryServiceTest {
         newLotteryDTO = NewLotteryDTO.builder()
                 .limit(LIMIT)
                 .title(TITLE)
-                .build();
-
-        checkStatusDTO = CheckStatusDTO.builder()
-                .code(REG_CODE)
-                .email(EMAIL)
-                .lotteryId(LOTTERY_ID)
                 .build();
 
         registrationDTO = RegistrationDTO.builder()
@@ -191,9 +183,8 @@ class LotteryServiceTest {
                 .status("WIN")
                 .build());
         when(lotteryDAO.findById(any())).thenReturn(Optional.ofNullable(validLottery));
-        when(codeService.isCodeValid(any())).thenReturn(true);
 
-        StatusResponse statusResponse = lotteryService.getWinnerStatus(checkStatusDTO);
+        StatusResponse statusResponse = lotteryService.getWinnerStatus(registrationDTO);
 
         assertEquals("WIN", statusResponse.getStatus());
     }
@@ -210,9 +201,7 @@ class LotteryServiceTest {
                         .status("Lose")
                         .build());
 
-        when(codeService.isCodeValid(any())).thenReturn(true);
-
-        StatusResponse statusResponse = lotteryService.getWinnerStatus(checkStatusDTO);
+        StatusResponse statusResponse = lotteryService.getWinnerStatus(registrationDTO);
 
         assertEquals("Lose", statusResponse.getStatus());
     }
@@ -220,9 +209,8 @@ class LotteryServiceTest {
     @Test
     void getWinnerStatus_ShouldReturnPending() {
         when(lotteryDAO.findById(any())).thenReturn(Optional.ofNullable(validLottery));
-        when(codeService.isCodeValid(any())).thenReturn(true);
 
-        StatusResponse statusResponse = lotteryService.getWinnerStatus(checkStatusDTO);
+        StatusResponse statusResponse = lotteryService.getWinnerStatus(registrationDTO);
 
         assertEquals("PENDING", statusResponse.getStatus());
     }

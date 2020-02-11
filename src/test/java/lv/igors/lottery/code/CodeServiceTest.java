@@ -65,22 +65,6 @@ class CodeServiceTest {
     }
 
     @Test
-    void shouldNotValidateCode_BecauseCodeIsLessThan16Symbols(){
-        codeDTO.setCode( lotteryStartDate + "789012345");
-        StatusResponse result = codeService.addCode(codeDTO);
-        assertEquals("Fail", result.getStatus());
-        assertEquals("Invalid code", result.getReason());
-    }
-
-    @Test
-    void shouldNotValidateCode_BecauseCodeDateIsWrong(){
-        codeDTO.setCode("1234567890123456");
-        StatusResponse result = codeService.checkWinnerCode(codeDTO, "1234");
-        assertEquals("Fail", result.getStatus());
-        assertEquals("Invalid code", result.getReason());
-    }
-
-    @Test
     void shouldValidateCodeWithEmailLessThan10Symbols(){
         codeDTO.setEmail("12@456.89");
         codeDTO.setCode(lotteryStartDate + "0912345678");
