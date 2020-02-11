@@ -1,15 +1,14 @@
 package lv.igors.lottery.statusResponse;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 
+@Data
 @Builder
-@Getter
-@Setter
-@EqualsAndHashCode
-@ToString
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class StatusResponse {
     private String status;
-    private Long id;
     private String reason;
+    private Long id;
     private String winnerCode;
 }
