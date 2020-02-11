@@ -1,7 +1,7 @@
 package lv.igors.lottery.lottery;
 
 import lombok.RequiredArgsConstructor;
-import lv.igors.lottery.lottery.dto.CheckStatusDTO;
+import lv.igors.lottery.CodeValidator;
 import lv.igors.lottery.lottery.dto.LotteryIdDTO;
 import lv.igors.lottery.lottery.dto.NewLotteryDTO;
 import lv.igors.lottery.lottery.dto.RegistrationDTO;
@@ -25,6 +25,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LotteryController {
     private final LotteryService lotteryService;
+    private final CodeValidator codeValidator;
 
     @GetMapping("/admin")
     public String adminPage(Model model) {
@@ -71,6 +72,7 @@ public class LotteryController {
                                     @Valid @ModelAttribute RegistrationDTO registrationDTO,
                                     BindingResult bindingResult) {
 
+        codeValidator.validate(registrationDTO, bindingResult);
 
         if (isValidationError(model, bindingResult)) return "error";
         StatusResponse statusResponse = lotteryService.registerCode(registrationDTO);
@@ -86,15 +88,17 @@ public class LotteryController {
                                     @RequestParam("age") Byte age,
                                     BindingResult bindingResult) {
 
-        CheckStatusDTO checkStatusDTO = CheckStatusDTO.builder()
+        RegistrationDTO registrationDTO = RegistrationDTO.builder()
                 .code(code)
                 .email(email)
                 .lotteryId(id)
                 .age(age)
                 .build();
 
+        codeValidator.validate(registrationDTO, bindingResult);
+
         if (isValidationError(model, bindingResult)) return "error";
-        StatusResponse statusResponse = lotteryService.getWinnerStatus(checkStatusDTO);
+        StatusResponse statusResponse = lotteryService.getWinnerStatus(registrationDTO);
         if (isServiceError(model, statusResponse)) return ("error");
         return "redirect:/admin";
     }

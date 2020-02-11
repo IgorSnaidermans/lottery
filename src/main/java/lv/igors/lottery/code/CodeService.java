@@ -18,37 +18,7 @@ public class CodeService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CodeService.class);
     private final CodeDAO codeDAO;
 
-    public boolean isCodeValid(CodeDTO codeDTO) {
-        LOGGER.info("Validating code " + codeDTO);
-        if (codeDTO.getCode().length() != 16) {
-            LOGGER.warn("Could not validate code - too small " + codeDTO);
-            return false;
-        }
-        String requestedCode = codeDTO.getCode();
-        String datePart = requestedCode.substring(0, 6);
-        String emailPart = requestedCode.substring(6, 8);
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMYY");
-        String lotteryStartDate = codeDTO.getLotteryStartTimestamp().format(formatter);
-        String emailLetterCount;
-
-        if (codeDTO.getEmail().length() < 10) {
-            emailLetterCount = "0" + codeDTO.getEmail().length();
-        } else {
-            emailLetterCount = "" + codeDTO.getEmail().length();
-        }
-
-        return datePart.equals(lotteryStartDate) && (emailPart.equals(emailLetterCount));
-    }
-
     public StatusResponse addCode(CodeDTO codeDTO) {
-        if (!isCodeValid(codeDTO)) {
-            LOGGER.info("Code did not pass validation " + codeDTO.toString());
-            return StatusResponse.builder()
-                    .status(Responses.FAIL.getResponse())
-                    .reason(Responses.CODE_INVALID.getResponse())
-                    .build();
-        }
 
         if (!findSimilarCodes(codeDTO.getCode())) {
             LOGGER.info("Code saved " + codeDTO.toString());
@@ -79,12 +49,6 @@ public class CodeService {
 
     public StatusResponse checkWinnerCode(CodeDTO codeDTO, String lotteryWinningCode) {
         LOGGER.info("Checking winning status for " + codeDTO);
-        if (!isCodeValid(codeDTO)) {
-            return StatusResponse.builder()
-                    .status(Responses.FAIL.getResponse())
-                    .reason(Responses.CODE_INVALID.getResponse())
-                    .build();
-        }
 
         Code winnerCode;
         Code requestedCode = Code.builder()

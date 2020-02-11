@@ -184,38 +184,28 @@ public class LotteryService {
                 .build();
     }
 
-    public StatusResponse getWinnerStatus(CheckStatusDTO checkStatusDTO) {
-        LOGGER.info("Getting winner status for" + checkStatusDTO);
+    public StatusResponse getWinnerStatus(RegistrationDTO registrationDTO) {
+        LOGGER.info("Getting winner status for" + registrationDTO);
         try {
-            Lottery lottery = getLotteryById(checkStatusDTO.getLotteryId());
+            Lottery lottery = getLotteryById(registrationDTO.getLotteryId());
             String lotteryWinningCode = lottery.getWinnerCode();
 
             CodeDTO codeDTO = CodeDTO.builder()
-                    .code(checkStatusDTO.getCode())
-                    .email(checkStatusDTO.getEmail())
+                    .code(registrationDTO.getCode())
+                    .email(registrationDTO.getEmail())
                     .lotteryStartTimestamp(lottery.getStartTimestamp())
                     .build();
 
-
-            if (!codeService.isCodeValid(codeDTO)) {
-                LOGGER.info("Code did not pass validation " + checkStatusDTO.toString());
-                return StatusResponse.builder()
-                        .status(Responses.FAIL.getResponse())
-                        .reason(Responses.CODE_INVALID.getResponse())
-                        .build();
-            }
-
-
             if (null == lottery.getWinnerCode()) {
                 LOGGER.info("Responded winner is pending. Lottery #" + lottery.getId() +
-                        ". To " + checkStatusDTO.getEmail());
+                        ". To " + registrationDTO.getEmail());
                 return StatusResponse.builder()
                         .status(Responses.LOTTERY_STATUS_PENDING.getResponse())
                         .build();
             }
 
             LOGGER.info("Responded winner status. Lottery #" + lottery.getId() +
-                    ". To " + checkStatusDTO.getEmail());
+                    ". To " + registrationDTO.getEmail());
             return codeService.checkWinnerCode(codeDTO, lotteryWinningCode);
         } catch (LotteryException e) {
             return StatusResponse.builder()
