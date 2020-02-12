@@ -18,10 +18,11 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .authenticationProvider(lotteryAuthenticationProvider)
                 .authorizeRequests()
-                .antMatchers("/", "/register", "/status", "/stats", "/lottery/**").permitAll()
+                .antMatchers("/", "/register", "/status", "/stats", "/lottery/**"
+                        , "/rest/register", "/rest/status", "/rest/stats", "/rest/lottery/**").permitAll()
                 .and()
                 .authorizeRequests()
-                .antMatchers("/admin/**").hasAuthority("ADMIN")
+                .antMatchers("/admin/**", "/rest/admin/**").hasAuthority("ADMIN")
                 .and()
                 .formLogin()
                 .loginPage("/admin-login").permitAll()
