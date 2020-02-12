@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -66,7 +65,7 @@ public class CodeService {
                         .build();
             }
             winnerCode = getCodeByParticipatingCode(lotteryWinningCode);
-        } catch (CodeException e) {
+        } catch (CodeDoesntExistException e) {
             return StatusResponse.builder()
                     .status(Responses.FAIL.getResponse())
                     .reason(e.getMessage())
@@ -85,14 +84,14 @@ public class CodeService {
 
     }
 
-    private boolean checkCodeOwner(Code code) throws CodeException {
+    private boolean checkCodeOwner(Code code) throws CodeDoesntExistException {
         LOGGER.info("Checking code owner for " + code);
         String requestedCodeOwnerEmail = getCodeByParticipatingCode(code.getParticipatingCode())
                 .getOwnerEmail();
         return requestedCodeOwnerEmail.equals(code.getOwnerEmail());
     }
 
-    public Code getCodeByParticipatingCode(String code) throws CodeException {
+    public Code getCodeByParticipatingCode(String code) throws CodeDoesntExistException {
         LOGGER.info("Getting code information for code:" + code);
         Optional<Code> possibleCode = codeDAO.findCodeByParticipatingCode(code);
 
@@ -100,7 +99,7 @@ public class CodeService {
             return possibleCode.get();
         } else {
             LOGGER.warn("Could not find code information for code:" + code);
-            throw new CodeException(Responses.CODE_NON_EXIST.getResponse());
+            throw new CodeDoesntExistException(Responses.CODE_NON_EXIST.getResponse());
         }
     }
 

@@ -6,12 +6,9 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Builder
-@Getter
-@Setter
-@EqualsAndHashCode
-@ToString
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
 @Entity(name = "lotteries")
 public class Lottery {
     @Id

@@ -3,10 +3,9 @@ package lv.igors.lottery.lottery.dto;
 import lombok.*;
 
 @Builder
-@Getter
-@Setter
-@EqualsAndHashCode
-@ToString
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
 public class LotteryDTO {
     private Long id;
     private Boolean active;

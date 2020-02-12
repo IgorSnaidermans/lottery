@@ -58,7 +58,8 @@
                                         <form action="/register">
                                             <input type="hidden" name="lotteryId" value="${lotteryDTO.id}">
                                             <div class="form-group">
-                                                <input required="required" name="email" type="email" class="form-control"
+                                                <input required="required" name="email" type="email"
+                                                       class="form-control"
                                                        aria-describedby="emailHelp" placeholder="Enter email">
                                             </div>
                                             <div class="form-group">

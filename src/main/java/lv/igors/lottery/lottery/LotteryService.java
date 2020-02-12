@@ -3,7 +3,7 @@ package lv.igors.lottery.lottery;
 import lombok.RequiredArgsConstructor;
 import lv.igors.lottery.code.Code;
 import lv.igors.lottery.code.CodeDTO;
-import lv.igors.lottery.code.CodeException;
+import lv.igors.lottery.code.CodeDoesntExistException;
 import lv.igors.lottery.code.CodeService;
 import lv.igors.lottery.lottery.dto.*;
 import lv.igors.lottery.statusResponse.Responses;
@@ -280,7 +280,7 @@ public class LotteryService {
             if (null != lottery.getWinnerCode()) {
                 try {
                     lottery.setWinnerCode(codeService.getCodeByParticipatingCode(lottery.getWinnerCode()).getOwnerEmail());
-                } catch (CodeException ignored) {
+                } catch (CodeDoesntExistException ignored) {
                 }
 
                 if (null != lottery.getEndTimestamp()) {

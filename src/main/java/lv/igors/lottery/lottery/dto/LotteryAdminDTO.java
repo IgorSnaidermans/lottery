@@ -3,11 +3,9 @@ package lv.igors.lottery.lottery.dto;
 import lombok.*;
 
 @Builder
-@Getter
-@Setter
-@ToString
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
 public class LotteryAdminDTO {
     private String startTimestampFormatted;
     private String endTimestampFormatted;

@@ -9,10 +9,9 @@ import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 
 @Builder
-@Getter
-@Setter
-@EqualsAndHashCode
-@ToString
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
 public class CodeDTO {
     private Long lotteryId;
     private LocalDateTime lotteryStartTimestamp;

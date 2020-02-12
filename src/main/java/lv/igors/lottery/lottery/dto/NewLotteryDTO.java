@@ -6,12 +6,9 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 @Builder
-@Getter
-@Setter
-@EqualsAndHashCode
-@ToString
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
+@Data
 public class NewLotteryDTO {
     @NotEmpty(message = "Title may not be null or empty")
     String title;

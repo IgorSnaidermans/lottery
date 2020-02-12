@@ -8,11 +8,9 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 @Builder
-@Getter
-@Setter
-@EqualsAndHashCode
-@ToString
 @AllArgsConstructor
+@NoArgsConstructor
+@Data
 public class RegistrationDTO {
     @NotNull(message = "Lottery id may not be null")
     private Long lotteryId;

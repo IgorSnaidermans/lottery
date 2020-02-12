@@ -2,11 +2,10 @@ package lv.igors.lottery.lottery.dto;
 
 import lombok.*;
 
-@Getter
-@Setter
 @Builder
-@EqualsAndHashCode
-@ToString
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
 public class StatisticsDTO {
     Long id;
     String title;

@@ -111,6 +111,7 @@ public class LotteryController {
                 .build();
 
         DataBinder dataBinder = new DataBinder(registrationDTO);
+
         codeValidator.validate(registrationDTO, dataBinder.getBindingResult());
 
         if (isValidationError(model, dataBinder.getBindingResult())) return "error";

@@ -1,14 +1,13 @@
 package lv.igors.lottery.lottery.dto;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.validation.constraints.NotNull;
 
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
+@Data
 public class LotteryIdDTO {
     @NotNull(message = "Lottery id may not be null")
     Long lotteryId;

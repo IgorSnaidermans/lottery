@@ -7,12 +7,9 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 
 @Builder
-@Getter
-@Setter
-@EqualsAndHashCode
-@ToString
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
 @Entity(name = "users")
 public class User {
 

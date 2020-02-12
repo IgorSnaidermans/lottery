@@ -55,7 +55,7 @@ class CodeServiceTest {
         when(codeDao.findCodeByParticipatingCode(any()))
                 .thenReturn(Optional.empty());
 
-        assertThrows(CodeException.class, () -> codeService.getCodeByParticipatingCode(any()));
+        assertThrows(CodeDoesntExistException.class, () -> codeService.getCodeByParticipatingCode(any()));
     }
 
     @Test
