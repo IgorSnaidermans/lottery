@@ -4,8 +4,6 @@ package lv.igors.lottery.code;
 import lv.igors.lottery.lottery.LotteryException;
 import lv.igors.lottery.lottery.LotteryService;
 import lv.igors.lottery.lottery.dto.RegistrationDTO;
-import lv.igors.lottery.statusResponse.Responses;
-import lv.igors.lottery.statusResponse.StatusResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -50,7 +48,7 @@ public class CodeValidator implements Validator {
             lotteryStartTimeStamp = lotteryService.getLotteryById(registrationDTO.getLotteryId())
                     .getStartTimestamp();
         } catch (LotteryException e) {
-            errors.rejectValue("id", "Lottery doesn't exist", "Lottery doesn't exist");
+            errors.rejectValue("lotteryId", "Lottery doesn't exist", "Lottery doesn't exist");
             return;
         }
 
