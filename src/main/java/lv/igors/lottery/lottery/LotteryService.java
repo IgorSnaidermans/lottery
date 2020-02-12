@@ -223,7 +223,7 @@ public class LotteryService {
     public List<StatisticsDTO> getAllLotteryStatistics() {
         LOGGER.info("Getting lottery statistics");
         List<StatisticsDTO> statisticsList = new ArrayList<>();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("DD.MM.YY HH:mm");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.YY HH:mm");
 
         for (Lottery lottery : lotteryDAO.findAll()) {
             StatisticsDTO statisticsDTO = StatisticsDTO.builder()
