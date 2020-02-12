@@ -150,10 +150,10 @@ public class LotteryService {
                     .build();
         }
 
-        if (!lottery.isActive() && null == lottery.getWinnerCode()) {
+        if (!lottery.isActive() && null == lottery.getWinnerCode() && lottery.getParticipants() > 0) {
             Random winnerChooser = new Random();
             List<Code> participatingCodes = codeService.getAllCodesByLotteryId(id.getLotteryId());
-            int winnerCodeInList = winnerChooser.nextInt(lottery.getParticipantsLimit());
+            int winnerCodeInList = winnerChooser.nextInt(lottery.getParticipants());
 
             String winnerCode = participatingCodes.get(winnerCodeInList).getParticipatingCode();
             LOGGER.info("Lottery #" + lottery.getId() + ". Chosen winner code: " + winnerCode);
@@ -174,6 +174,12 @@ public class LotteryService {
             return StatusResponse.builder()
                     .status(Responses.FAIL.getResponse())
                     .reason(Responses.LOTTERY_FINISHED.getResponse())
+                    .build();
+        } else if (lottery.getParticipants() <= 0) {
+            LOGGER.warn("Unsuccessful choose winner due to no participants in it. Lottery #" + lottery.getId());
+            return StatusResponse.builder()
+                    .status(Responses.FAIL.getResponse())
+                    .reason(Responses.LOTTERY_NO_PARTICIPANTS.getResponse())
                     .build();
         }
 

@@ -8,7 +8,7 @@
 <body>
 <%@include file="navbar.jsp" %>
 
-<div class="card" style="width: 20rem;">
+<div class="card" style="width: 30rem;">
     <div class="card-body">
         <p>An error happened ${statusResponse.reason}</p>
         <c:forEach items="${errors}" var="error">
