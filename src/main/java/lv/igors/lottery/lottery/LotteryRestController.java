@@ -11,7 +11,9 @@ import lv.igors.lottery.statusResponse.Responses;
 import lv.igors.lottery.statusResponse.StatusResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.AbstractBindingResult;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.DataBinder;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -49,7 +51,7 @@ public class LotteryRestController {
     @PostMapping("/rest/admin/stop-registration")
     public ResponseEntity<StatusResponse> stopRegistration(@Valid LotteryIdDTO lotteryId, BindingResult bindingResult) {
         if (isValidationError(bindingResult)) {
-            buildValidationError(bindingResult);
+            return buildValidationError(bindingResult);
         }
         StatusResponse statusResponse = lotteryService.stopRegistration(lotteryId);
         if (isServiceError(statusResponse)) return new ResponseEntity<>(statusResponse,
@@ -61,7 +63,7 @@ public class LotteryRestController {
     public ResponseEntity<StatusResponse> chooseWinner(@Valid LotteryIdDTO lotteryId,
                                                        BindingResult bindingResult) {
         if (isValidationError(bindingResult)) {
-            buildValidationError(bindingResult);
+            return buildValidationError(bindingResult);
         }
         StatusResponse statusResponse = lotteryService.chooseWinner(lotteryId);
         if (isServiceError(statusResponse)) return new ResponseEntity<>(statusResponse,
@@ -75,7 +77,7 @@ public class LotteryRestController {
         codeValidator.validate(registrationDTO, bindingResult);
 
         if (isValidationError(bindingResult)) {
-            buildValidationError(bindingResult);
+            return buildValidationError(bindingResult);
         }
         StatusResponse statusResponse = lotteryService.registerCode(registrationDTO);
         if (isServiceError(statusResponse)) return new ResponseEntity<>(statusResponse,
@@ -104,15 +106,13 @@ public class LotteryRestController {
                 .age(age)
                 .build();
 
-        StatusResponse statusResponse = StatusResponse.builder().build();
-
-        codeValidator.validate(registrationDTO, statusResponse);
-        if (statusResponse.getStatus().equals(Responses.FAIL.getResponse())) {
-            return new ResponseEntity<>(statusResponse,
-                    HttpStatus.BAD_REQUEST);
+        DataBinder dataBinder = new DataBinder(registrationDTO);
+        codeValidator.validate(registrationDTO, dataBinder.getBindingResult());
+        if (isValidationError(dataBinder.getBindingResult())) {
+            return buildValidationError(dataBinder.getBindingResult());
         }
 
-        statusResponse = lotteryService.getWinnerStatus(registrationDTO);
+        StatusResponse statusResponse = lotteryService.getWinnerStatus(registrationDTO);
         if (isServiceError(statusResponse)) return new ResponseEntity<>(statusResponse,
                 HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>(statusResponse, HttpStatus.OK);
@@ -133,7 +133,7 @@ public class LotteryRestController {
 
         for (FieldError fieldError : bindingResult.getFieldErrors()) {
             reasonBuilder.append(fieldError.getField()).append(": ")
-                    .append(fieldError.getDefaultMessage()).append("&&");
+                    .append(fieldError.getDefaultMessage()).append("  ");
         }
 
         return new ResponseEntity<>(StatusResponse.builder()
