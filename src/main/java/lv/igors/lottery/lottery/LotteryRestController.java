@@ -143,7 +143,6 @@ public class LotteryRestController {
     }
 
     private boolean isValidationError(BindingResult bindingResult) {
-
         return bindingResult.hasErrors();
     }
 

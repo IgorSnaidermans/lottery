@@ -1,6 +1,9 @@
 package lv.igors.lottery.lottery.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Builder
 @AllArgsConstructor
