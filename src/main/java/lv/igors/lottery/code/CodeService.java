@@ -80,7 +80,8 @@ public class CodeService {
 
     private boolean checkCodeOwner(Code code) throws CodeDoesntExistException {
         LOGGER.info("Checking code owner for " + code);
-        String requestedCodeOwnerEmail = getCodeByParticipatingCode(code.getParticipatingCode())
+        String requestedCodeOwnerEmail = getCodeByParticipatingCodeAndLotteryId(code.getParticipatingCode(),
+                code.getLotteryId())
                 .getOwnerEmail();
         return requestedCodeOwnerEmail.equals(code.getOwnerEmail());
     }
