@@ -17,11 +17,6 @@
             <c:out value="<p>An error happened: ${statusResponse.reason}</p>"/> </c:if>
 
 
-        ${statusResponse.status.contains("")}
-        ${welcome}
-        <c:out value='${welcome}'/>
-
-
         <div class="container-fluid">
             <div class="row">
                 <c:forEach items="${lotteries}" var="lotteryDTO">
@@ -33,7 +28,7 @@
                             <p class="card-text">${lotteryDTO.startTimestamp}</p>
                             <c:if test="${lotteryDTO.active}">
                                 <button type="button" class="btn btn-primary" data-toggle="modal"
-                                        data-target="#lottery${lotteryDTO.id}">Open
+                                        data-target="#lottery${lotteryDTO.id}">Register
                                 </button>
                             </c:if>
                             <c:if test="${!lotteryDTO.active}">
@@ -76,9 +71,11 @@
                                                 <button type="submit" class="btn btn-primary" formmethod="post">Register
                                                 </button>
                                             </c:if>
-                                            <button type="submit" class="btn btn-primary" formmethod="get"
-                                                    formaction="/status">Check win
-                                            </button>
+                                            <c:if test="${!lotteryDTO.active}">
+                                                <button type="submit" class="btn btn-primary" formmethod="get"
+                                                        formaction="/status">Check win
+                                                </button>
+                                            </c:if>
                                         </form>
                                         <p class="text-center">By submitting the data, you agree that the website owner
                                             will
