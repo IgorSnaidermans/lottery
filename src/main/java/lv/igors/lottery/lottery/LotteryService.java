@@ -285,14 +285,17 @@ public class LotteryService {
                     .build();
 
             try {
-                lotteryAdminDTO.setWinnerEmail(codeService.getEmailByCode(lottery.getWinnerCode()));
+                lotteryAdminDTO.setWinnerEmail(codeService.getEmailByCodeAndLotteryId(lottery.getWinnerCode(),
+                        lottery.getId()));
             } catch (CodeDoesntExistException ignored) {
 
             }
 
             if (null != lottery.getWinnerCode()) {
                 try {
-                    lottery.setWinnerCode(codeService.getCodeByParticipatingCode(lottery.getWinnerCode()).getOwnerEmail());
+                    lottery.setWinnerCode(codeService.getCodeByParticipatingCodeAndLotteryId(lottery.getWinnerCode(),
+                            lottery.getId())
+                            .getOwnerEmail());
                 } catch (CodeDoesntExistException ignored) {
                 }
 

@@ -1,5 +1,6 @@
 package lv.igors.lottery.code;
 
+import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -14,5 +15,7 @@ public interface CodeDAO extends CrudRepository<Code, Long> {
 
     Optional<Code> findCodeByParticipatingCode(@Param("participatingCode") String participatingCode);
 
-    Optional<String> findOwnerEmailByParticipatingCode(String winnerCode);
+    Optional<Code> findCodeByParticipatingCodeAndLotteryId(@Param("participatingCode") String participatingCode,
+                                                           Long lotteryId);
+
 }

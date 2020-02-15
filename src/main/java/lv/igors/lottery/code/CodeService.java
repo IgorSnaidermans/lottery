@@ -97,12 +97,34 @@ public class CodeService {
         }
     }
 
+    public Code getCodeByParticipatingCodeAndLotteryId(String code, Long id) throws CodeDoesntExistException {
+        LOGGER.info("Getting code information for code:" + code);
+        Optional<Code> possibleCode = codeDAO.findCodeByParticipatingCodeAndLotteryId(code, id);
+
+        if (possibleCode.isPresent()) {
+            return possibleCode.get();
+        } else {
+            LOGGER.warn("Could not find code information for code:" + code);
+            throw new CodeDoesntExistException(Responses.CODE_NON_EXIST.getResponse());
+        }
+    }
+
     public List<Code> getAllCodesByLotteryId(Long id) {
         LOGGER.info("Getting all codes information by lottery id #" + id);
         return new ArrayList<>(codeDAO.findCodesByLotteryId(id));
     }
 
-    public String getEmailByCode(String winnerCode) throws CodeDoesntExistException {
-        return getCodeByParticipatingCode(winnerCode).getOwnerEmail();
+    public String getEmailByCodeAndLotteryId(String code, Long id) throws CodeDoesntExistException {
+        LOGGER.info("Getting email by code" + code + " and lottery id #" + id);
+
+        Optional<Code> possibleCode = codeDAO.findCodeByParticipatingCodeAndLotteryId(code,
+                id);
+
+        if (possibleCode.isPresent()) {
+            return possibleCode.get().getOwnerEmail();
+        } else {
+            LOGGER.warn("Could not find code information for code:" + code);
+            throw new CodeDoesntExistException(Responses.CODE_NON_EXIST.getResponse());
+        }
     }
 }
