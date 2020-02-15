@@ -58,7 +58,8 @@ public class CodeService {
                         .reason(Responses.CODE_FOREIGN_CODE.getResponse())
                         .build();
             }
-            winnerCode = getCodeByParticipatingCode(lotteryWinningCode);
+            winnerCode = getCodeByParticipatingCodeAndLotteryId(requestedCode.getParticipatingCode(),
+                    requestedCode.getLotteryId());
         } catch (CodeDoesntExistException e) {
             return StatusResponse.builder()
                     .status(Responses.FAIL.getResponse())
