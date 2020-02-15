@@ -87,18 +87,6 @@ public class CodeService {
         return requestedCodeOwnerEmail.equals(code.getOwnerEmail());
     }
 
-    public Code getCodeByParticipatingCode(String code) throws CodeDoesntExistException {
-        LOGGER.info("Getting code information for code:" + code);
-        Optional<Code> possibleCode = codeDAO.findCodeByParticipatingCode(code);
-
-        if (possibleCode.isPresent()) {
-            return possibleCode.get();
-        } else {
-            LOGGER.warn("Could not find code information for code:" + code);
-            throw new CodeDoesntExistException(Responses.CODE_NON_EXIST.getResponse());
-        }
-    }
-
     public Code getCodeByParticipatingCodeAndLotteryId(String code, Long id) throws CodeDoesntExistException {
         LOGGER.info("Getting code information for code:" + code);
         Optional<Code> possibleCode = codeDAO.findCodeByParticipatingCodeAndLotteryId(code, id);

@@ -122,7 +122,6 @@ public class LotteryRestController {
         return new ResponseEntity<>(lotteryService.getAllLotteryStatistics(), HttpStatus.OK);
     }
 
-
     private boolean isServiceError(StatusResponse statusResponse) {
         return statusResponse.getStatus().equals(Responses.FAIL.getResponse());
     }
@@ -145,6 +144,5 @@ public class LotteryRestController {
     private boolean isValidationError(BindingResult bindingResult) {
         return bindingResult.hasErrors();
     }
-
 
 }
