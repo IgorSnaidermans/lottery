@@ -21,6 +21,7 @@ class CodeServiceTest {
     @Mock
     private CodeDAO codeDao;
     private CodeService codeService;
+    private Code code;
     private CodeDTO codeDTO;
     private Code winnerCode;
 
@@ -42,11 +43,17 @@ class CodeServiceTest {
                 .lotteryId(0L)
                 .build();
 
+        code = Code.builder()
+                .participatingCode(REG_CODE)
+                .lotteryId(LOTTERY_ID)
+                .participatingCode(EMAIL)
+                .build();
+
         codeDTO = CodeDTO.builder()
+                .email(EMAIL)
                 .code(REG_CODE)
                 .lotteryId(LOTTERY_ID)
                 .lotteryStartTimestamp(localDateTime)
-                .email(EMAIL)
                 .build();
     }
 
@@ -60,16 +67,16 @@ class CodeServiceTest {
 
     @Test
     void addCode_ShouldSuccess() {
-        StatusResponse result = codeService.addCode(codeDTO);
+        StatusResponse result = codeService.addCode(code);
         assertEquals("OK", result.getStatus());
     }
 
     @Test
-    void shouldValidateCodeWithEmailLessThan10Symbols(){
-        codeDTO.setEmail("12@456.89");
-        codeDTO.setCode(lotteryStartDate + "0912345678");
+    void shouldValidateCodeWithEmailLessThan10Symbols() {
+        code.setOwnerEmail("12@456.89");
+        code.setParticipatingCode(lotteryStartDate + "0912345678");
 
-        StatusResponse result = codeService.addCode(codeDTO);
+        StatusResponse result = codeService.addCode(code);
         assertEquals("OK", result.getStatus());
     }
 
@@ -80,7 +87,7 @@ class CodeServiceTest {
         when(codeDao.findCodeByParticipatingCode(any()))
                 .thenReturn(Optional.ofNullable(code));
 
-        StatusResponse result = codeService.addCode(codeDTO);
+        StatusResponse result = codeService.addCode(code);
 
         assertEquals("Fail", result.getStatus());
         assertEquals("Code already exists", result.getReason());
@@ -88,10 +95,10 @@ class CodeServiceTest {
 
     @Test
     void checkWinnerCode_ShouldReturnWin(){
-        Code code = codeDtoToCode();
+        Code codeCheck = codeDtoToCode();
 
         when(codeDao.findCodeByParticipatingCode(any()))
-                .thenReturn(Optional.ofNullable(code));
+                .thenReturn(Optional.ofNullable(codeCheck));
 
         StatusResponse statusResponse = codeService.checkWinnerCode(codeDTO, winnerCode.getParticipatingCode());
 
