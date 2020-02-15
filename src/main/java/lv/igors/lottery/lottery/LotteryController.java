@@ -84,7 +84,7 @@ public class LotteryController {
         }
         StatusResponse statusResponse = lotteryService.registerCode(registrationDTO);
         if (isServiceError(model, statusResponse)) return ("error");
-        return "redirect:/admin";
+        return "redirect:/";
     }
 
     @GetMapping("/status")
@@ -169,16 +169,4 @@ public class LotteryController {
         }
         return false;
     }
-
-    private boolean isValidationError(Model model, StatusResponse statusResponse) {
-
-        if (statusResponse.getStatus().equals(Responses.FAIL.getResponse())) {
-
-            model.addAttribute("errorsStatusResponse", statusResponse);
-            return true;
-        }
-        return false;
-    }
-
-
 }

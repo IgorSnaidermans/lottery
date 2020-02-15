@@ -107,4 +107,8 @@ public class CodeService {
         LOGGER.info("Getting all codes information by lottery id #" + id);
         return new ArrayList<>(codeDAO.findCodesByLotteryId(id));
     }
+
+    public String getEmailByCode(String winnerCode) throws CodeDoesntExistException {
+        return getCodeByParticipatingCode(winnerCode).getOwnerEmail();
+    }
 }

@@ -9,9 +9,10 @@ import java.util.Optional;
 
 @Repository
 public interface CodeDAO extends CrudRepository<Code, Long> {
-    //@Query("SELECT * FROM codes WHERE lotteryid= :lotteryId")
+
     List<Code> findCodesByLotteryId(@Param("lotteryId") Long lotteryId);
 
-    //@Query("SELECT * FROM codes WHERE participatingcode= :participatingCode")
     Optional<Code> findCodeByParticipatingCode(@Param("participatingCode") String participatingCode);
+
+    Optional<String> findOwnerEmailByParticipatingCode(String winnerCode);
 }

@@ -30,7 +30,7 @@ public class LotteryService {
     private final Clock clock;
     private LocalDateTime currentTimeStamp;
 
-    @Bean
+
     public LocalDateTime getCurrentTimeStamp() {
         return currentTimeStamp = LocalDateTime.now(clock);
     }
@@ -48,7 +48,7 @@ public class LotteryService {
         Lottery lottery = Lottery.builder()
                 .active(true)
                 .title(newLotteryDTO.getTitle())
-                .startTimestamp(currentTimeStamp)
+                .startTimestamp(getCurrentTimeStamp())
                 .participantsLimit(newLotteryDTO.getLimit())
                 .build();
         lotteryDAO.save(lottery);
@@ -123,7 +123,7 @@ public class LotteryService {
         if (lottery.isActive()) {
             LOGGER.info("Lottery #" + lottery.getId() + " stopped");
             lottery.setActive(false);
-            lottery.setEndTimestamp(currentTimeStamp);
+            lottery.setEndTimestamp(getCurrentTimeStamp());
             lotteryDAO.save(lottery);
             return StatusResponse.builder()
                     .status(Responses.OK.getResponse())
@@ -156,6 +156,7 @@ public class LotteryService {
             int winnerCodeInList = winnerChooser.nextInt(lottery.getParticipants());
 
             String winnerCode = participatingCodes.get(winnerCodeInList).getParticipatingCode();
+
             LOGGER.info("Lottery #" + lottery.getId() + ". Chosen winner code: " + winnerCode);
             lottery.setWinnerCode(winnerCode);
             lotteryDAO.save(lottery);
@@ -282,6 +283,12 @@ public class LotteryService {
                     .title(lottery.getTitle())
                     .winnerCode(lottery.getWinnerCode())
                     .build();
+
+            try {
+                lotteryAdminDTO.setWinnerEmail(codeService.getEmailByCode(lottery.getWinnerCode()));
+            } catch (CodeDoesntExistException ignored) {
+
+            }
 
             if (null != lottery.getWinnerCode()) {
                 try {
