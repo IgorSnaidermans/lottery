@@ -32,11 +32,20 @@ public class CodeValidator implements Validator {
         RegistrationDTO registrationDTO = (RegistrationDTO) target;
 
         LOGGER.info("Validating code " + registrationDTO);
+
+        if (!registrationDTO.getCode().matches("[0-9]+")) {
+            LOGGER.warn("Could not validate code - letter detected " + registrationDTO);
+            errors.rejectValue("code", "numsonly", "invalid code");
+            return;
+        }
+
         if (registrationDTO.getCode().length() != 16) {
             LOGGER.warn("Could not validate code - too small " + registrationDTO);
             errors.rejectValue("code", "min", "invalid code");
             return;
         }
+
+
         String requestedCode = registrationDTO.getCode();
         String datePart = requestedCode.substring(0, 6);
         String emailPart = requestedCode.substring(6, 8);
