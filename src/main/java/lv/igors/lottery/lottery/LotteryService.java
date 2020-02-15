@@ -197,6 +197,7 @@ public class LotteryService {
             String lotteryWinningCode = lottery.getWinnerCode();
 
             CodeDTO codeDTO = CodeDTO.builder()
+                    .lotteryId(registrationDTO.getLotteryId())
                     .code(registrationDTO.getCode())
                     .email(registrationDTO.getEmail())
                     .lotteryStartTimestamp(lottery.getStartTimestamp())

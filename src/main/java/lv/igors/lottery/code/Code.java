@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Builder
 @AllArgsConstructor
@@ -23,4 +24,14 @@ public class Code {
     private String participatingCode;
     @Column(name = "owneremail")
     private String ownerEmail;
+
+
+    public boolean equalsWithoutDatabaseId(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Code code = (Code) o;
+        return Objects.equals(lotteryId, code.lotteryId) &&
+                Objects.equals(participatingCode, code.participatingCode) &&
+                Objects.equals(ownerEmail, code.ownerEmail);
+    }
 }

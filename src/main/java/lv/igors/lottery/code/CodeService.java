@@ -66,7 +66,7 @@ public class CodeService {
                     .build();
         }
 
-        if (winnerCode.equals(requestedCode)) {
+        if (winnerCode.equalsWithoutDatabaseId(requestedCode)) {
             return StatusResponse.builder()
                     .status(Responses.CODE_WIN.getResponse())
                     .build();
