@@ -35,8 +35,8 @@ public class CodeService {
     }
 
     public boolean findSimilarCodes(Code code) {
-        Optional<Code> possibleCode = codeDAO.findCodeByParticipatingCode(code.getParticipatingCode());
-
+        Optional<Code> possibleCode = codeDAO.findCodeByParticipatingCodeAndLotteryId(code.getParticipatingCode(),
+                code.getLotteryId());
         return possibleCode.map(value -> value.equals(code)).orElse(false);
     }
 
