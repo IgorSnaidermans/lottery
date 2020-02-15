@@ -117,7 +117,8 @@ public class LotteryController {
         if (isValidationError(model, dataBinder.getBindingResult())) return "error";
         StatusResponse statusResponse = lotteryService.getWinnerStatus(registrationDTO);
         if (isServiceError(model, statusResponse)) return "error";
-        return "redirect:/admin";
+        model.addAttribute("statusResponse", statusResponse);
+        return "check-win";
     }
 
     @GetMapping("/stats")

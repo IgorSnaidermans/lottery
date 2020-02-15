@@ -17,33 +17,27 @@ public class CodeService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CodeService.class);
     private final CodeDAO codeDAO;
 
-    public StatusResponse addCode(CodeDTO codeDTO) {
+    public StatusResponse addCode(Code code) {
 
-        if (!findSimilarCodes(codeDTO.getCode())) {
-            LOGGER.info("Code saved " + codeDTO.toString());
-
-            Code code = Code.builder()
-                    .ownerEmail(codeDTO.getEmail())
-                    .participatingCode(codeDTO.getCode())
-                    .lotteryId(codeDTO.getLotteryId())
-                    .build();
+        if (!findSimilarCodes(code)) {
+            LOGGER.info("Code saved " + code);
 
             codeDAO.save(code);
             return StatusResponse.builder()
                     .status(Responses.OK.getResponse())
                     .build();
         }
-        LOGGER.warn("Unsuccessful code save due to already exist" + codeDTO.getCode());
+        LOGGER.warn("Unsuccessful code save due to already exist" + code);
         return StatusResponse.builder()
                 .status(Responses.FAIL.getResponse())
                 .reason(Responses.CODE_EXIST.getResponse())
                 .build();
     }
 
-    public boolean findSimilarCodes(String code) {
-        Optional<Code> possibleCode = codeDAO.findCodeByParticipatingCode(code);
+    public boolean findSimilarCodes(Code code) {
+        Optional<Code> possibleCode = codeDAO.findCodeByParticipatingCode(code.getParticipatingCode());
 
-        return possibleCode.isPresent();
+        return possibleCode.map(value -> value.equals(code)).orElse(false);
     }
 
     public StatusResponse checkWinnerCode(CodeDTO codeDTO, String lotteryWinningCode) {

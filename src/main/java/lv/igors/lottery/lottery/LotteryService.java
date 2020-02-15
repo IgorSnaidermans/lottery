@@ -88,17 +88,16 @@ public class LotteryService {
                     .build();
         }
 
-        CodeDTO codeDTO = CodeDTO.builder()
-                .code(registrationDTO.getCode())
-                .email(registrationDTO.getEmail())
+        Code code = Code.builder()
+                .participatingCode(registrationDTO.getCode())
+                .ownerEmail(registrationDTO.getEmail())
                 .lotteryId(registrationDTO.getLotteryId())
-                .lotteryStartTimestamp(lottery.getStartTimestamp())
                 .build();
 
         LOGGER.info("Code registration from " + registrationDTO.getEmail() + ".Code:"
                 + registrationDTO.getCode() + ". Lottery #" + lottery.getId());
 
-        StatusResponse statusResponse = codeService.addCode(codeDTO);
+        StatusResponse statusResponse = codeService.addCode(code);
 
         if (statusResponse.getStatus().equals(Responses.OK.getResponse())) {
             lottery.setParticipants(lottery.getParticipants() + 1);

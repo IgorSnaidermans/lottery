@@ -5,10 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
 
 @Builder
 @AllArgsConstructor
@@ -22,6 +19,8 @@ public class RegistrationDTO {
     private String email;
     @NotNull(message = "Age may not be null")
     @Min(value = 21, message = "To participate, you should be not younger than 21 years old")
+    @Max(value = 127, message = "Age cannot be more than 127")
+
     private Byte age;
     @NotEmpty(message = "Code may not be empty")
     private String code;
