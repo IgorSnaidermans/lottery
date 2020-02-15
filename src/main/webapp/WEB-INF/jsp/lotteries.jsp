@@ -37,13 +37,15 @@
                                 </button>
                             </c:if>
                             <c:if test="${!lotteryDTO.active}">
-                                <button disabled class="btn btn-danger">Closed</button>
+                                <button type="button" class="btn btn-info" data-toggle="modal"
+                                        data-target="#lottery${lotteryDTO.id}">Check win
+                                </button>
                             </c:if>
                         </div>
                     </div>
 
                     <!-- Modal -->
-                    <c:if test="${lotteryDTO.active}">
+
                         <div class="modal fade" id="lottery${lotteryDTO.id}" tabindex="-1" role="dialog"
                              aria-hidden="true">
                             <div class="modal-dialog" role="document">
@@ -70,8 +72,10 @@
                                                 <input required="required" name="age" class="form-control"
                                                        placeholder="Your age">
                                             </div>
-                                            <button type="submit" class="btn btn-primary" formmethod="post">Register
-                                            </button>
+                                            <c:if test="${lotteryDTO.active}">
+                                                <button type="submit" class="btn btn-primary" formmethod="post">Register
+                                                </button>
+                                            </c:if>
                                             <button type="submit" class="btn btn-primary" formmethod="get"
                                                     formaction="/status">Check win
                                             </button>
@@ -84,7 +88,6 @@
                                 </div>
                             </div>
                         </div>
-                    </c:if>
                 </c:forEach>
             </div>
         </div>
