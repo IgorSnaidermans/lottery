@@ -59,10 +59,11 @@ class CodeServiceTest {
 
     @Test
     void ShouldThrowException_BecauseNoCodeFoundInRepository(){
-        when(codeDao.findCodeByParticipatingCode(any()))
+        when(codeDao.findCodeByParticipatingCodeAndLotteryId(any(), any()))
                 .thenReturn(Optional.empty());
 
-        assertThrows(CodeDoesntExistException.class, () -> codeService.getCodeByParticipatingCode(any()));
+        assertThrows(CodeDoesntExistException.class, () ->
+                codeService.getCodeByParticipatingCodeAndLotteryId(any(), any()));
     }
 
     @Test
@@ -84,7 +85,7 @@ class CodeServiceTest {
     void addCode_ShouldFailDueToCodeAlreadyExist(){
         Code code = codeDtoToCode();
 
-        when(codeDao.findCodeByParticipatingCode(any()))
+        when(codeDao.findCodeByParticipatingCodeAndLotteryId(any(), any()))
                 .thenReturn(Optional.ofNullable(code));
 
         StatusResponse result = codeService.addCode(code);
@@ -97,7 +98,7 @@ class CodeServiceTest {
     void checkWinnerCode_ShouldReturnWin(){
         Code codeCheck = codeDtoToCode();
 
-        when(codeDao.findCodeByParticipatingCode(any()))
+        when(codeDao.findCodeByParticipatingCodeAndLotteryId(any(), any()))
                 .thenReturn(Optional.ofNullable(codeCheck));
 
         StatusResponse statusResponse = codeService.checkWinnerCode(codeDTO, winnerCode.getParticipatingCode());
@@ -118,9 +119,9 @@ class CodeServiceTest {
         Code code = codeDtoToCode();
         code.setParticipatingCode("0502981212345678");
 
-        when(codeDao.findCodeByParticipatingCode(winnerCode.getParticipatingCode()))
+        when(codeDao.findCodeByParticipatingCodeAndLotteryId(winnerCode.getParticipatingCode(), winnerCode.getLotteryId()))
                 .thenReturn(Optional.ofNullable(winnerCode));
-        when(codeDao.findCodeByParticipatingCode(codeDTO.getCode()))
+        when(codeDao.findCodeByParticipatingCodeAndLotteryId(codeDTO.getCode(), codeDTO.getLotteryId()))
                 .thenReturn(Optional.ofNullable(code));
 
 
@@ -132,7 +133,7 @@ class CodeServiceTest {
 
     @Test
     void checkWinnerCode_ShouldReturnCodeIsNotYours(){
-        when(codeDao.findCodeByParticipatingCode(any()))
+        when(codeDao.findCodeByParticipatingCodeAndLotteryId(any(), any()))
                 .thenReturn(Optional.ofNullable(winnerCode));
 
 
