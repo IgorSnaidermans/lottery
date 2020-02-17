@@ -1,4 +1,4 @@
-package lv.igors.lottery.code;
+package lv.igors.lottery.code.dto;
 
 
 import lombok.AllArgsConstructor;

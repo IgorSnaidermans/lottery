@@ -1,5 +1,6 @@
 package lv.igors.lottery.lottery;
 
+import lv.igors.lottery.lottery.dto.CheckStatusDTO;
 import lv.igors.lottery.lottery.dto.LotteryIdDTO;
 import lv.igors.lottery.lottery.dto.NewLotteryDTO;
 import lv.igors.lottery.lottery.dto.RegistrationDTO;
@@ -33,6 +34,7 @@ class LotteryServiceTest {
 
     private LotteryService lotteryService;
     private RegistrationDTO registrationDTO;
+    private CheckStatusDTO checkStatusDTO;
     private Lottery validLottery;
     private NewLotteryDTO newLotteryDTO;
     private LotteryIdDTO lotteryIdDTO;
@@ -65,7 +67,13 @@ class LotteryServiceTest {
         validLottery = Lottery.builder()
                 .active(true)
                 .participantsLimit(LIMIT)
-                .participants(LIMIT-1)
+                .participants(LIMIT - 1)
+                .build();
+
+        checkStatusDTO = CheckStatusDTO.builder()
+                .code(REG_CODE)
+                .lotteryId(LOTTERY_ID)
+                .email(EMAIL)
                 .build();
 
         lotteryIdDTO = new LotteryIdDTO();
@@ -184,7 +192,7 @@ class LotteryServiceTest {
                 .build());
         when(lotteryDAO.findById(any())).thenReturn(Optional.ofNullable(validLottery));
 
-        StatusResponse statusResponse = lotteryService.getWinnerStatus(registrationDTO);
+        StatusResponse statusResponse = lotteryService.getWinnerStatus(checkStatusDTO);
 
         assertEquals("WIN", statusResponse.getStatus());
     }
@@ -201,7 +209,7 @@ class LotteryServiceTest {
                         .status("Lose")
                         .build());
 
-        StatusResponse statusResponse = lotteryService.getWinnerStatus(registrationDTO);
+        StatusResponse statusResponse = lotteryService.getWinnerStatus(checkStatusDTO);
 
         assertEquals("Lose", statusResponse.getStatus());
     }
@@ -210,7 +218,7 @@ class LotteryServiceTest {
     void getWinnerStatus_ShouldReturnPending() {
         when(lotteryDAO.findById(any())).thenReturn(Optional.ofNullable(validLottery));
 
-        StatusResponse statusResponse = lotteryService.getWinnerStatus(registrationDTO);
+        StatusResponse statusResponse = lotteryService.getWinnerStatus(checkStatusDTO);
 
         assertEquals("PENDING", statusResponse.getStatus());
     }

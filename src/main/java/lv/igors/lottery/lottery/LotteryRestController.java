@@ -2,6 +2,7 @@ package lv.igors.lottery.lottery;
 
 import lombok.AllArgsConstructor;
 import lv.igors.lottery.code.CodeValidator;
+import lv.igors.lottery.code.dto.ValidateCodeDTO;
 import lv.igors.lottery.lottery.dto.*;
 import lv.igors.lottery.statusResponse.Responses;
 import lv.igors.lottery.statusResponse.StatusResponse;
@@ -74,16 +75,23 @@ public class LotteryRestController {
     }
 
     @GetMapping("/rest/status")
-    public ResponseEntity<StatusResponse> checkWinnerStatus(@Valid RegistrationDTO registrationDTO,
+    public ResponseEntity<StatusResponse> checkWinnerStatus(@Valid CheckStatusDTO checkStatusDTO,
                                                             BindingResult bindingResult) {
 
 
-        codeValidator.validate(registrationDTO, bindingResult);
+        ValidateCodeDTO validateCodeDTO = ValidateCodeDTO.builder()
+                .code(checkStatusDTO.getCode())
+                .email(checkStatusDTO.getEmail())
+                .lotteryId(checkStatusDTO.getLotteryId())
+                .build();
+
+        codeValidator.validate(validateCodeDTO, bindingResult);
+
         if (isValidationError(bindingResult)) {
             return buildValidationError(bindingResult);
         }
 
-        StatusResponse statusResponse = lotteryService.getWinnerStatus(registrationDTO);
+        StatusResponse statusResponse = lotteryService.getWinnerStatus(checkStatusDTO);
         if (isServiceError(statusResponse)) return new ResponseEntity<>(statusResponse,
                 HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>(statusResponse, HttpStatus.OK);

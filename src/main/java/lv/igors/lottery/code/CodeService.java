@@ -1,6 +1,7 @@
 package lv.igors.lottery.code;
 
 import lombok.RequiredArgsConstructor;
+import lv.igors.lottery.code.dto.CodeDTO;
 import lv.igors.lottery.statusResponse.Responses;
 import lv.igors.lottery.statusResponse.StatusResponse;
 import org.slf4j.Logger;
@@ -67,7 +68,7 @@ public class CodeService {
                     .build();
         }
 
-        if (winnerCode.equalsWithoutDatabaseId(requestedCode)) {
+        if (winnerCode.equals(requestedCode)) {
             return StatusResponse.builder()
                     .status(Responses.CODE_WIN.getResponse())
                     .build();

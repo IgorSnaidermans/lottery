@@ -1,19 +1,17 @@
 package lv.igors.lottery.code;
 
+import lv.igors.lottery.code.dto.ValidateCodeDTO;
 import lv.igors.lottery.lottery.Lottery;
 import lv.igors.lottery.lottery.LotteryException;
 import lv.igors.lottery.lottery.LotteryService;
-import lv.igors.lottery.lottery.dto.RegistrationDTO;
+import lv.igors.lottery.lottery.dto.CheckStatusDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.DataBinder;
-import org.springframework.validation.Errors;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -26,13 +24,12 @@ class CodeValidatorTest {
 
     final String REG_CODE = "0502981392837465";
     final String EMAIL = "some@mail.com";
-    final Byte AGE = 21;
     final Long LOTTERY_ID = 0L;
     DataBinder dataBinder;
     @Mock
     LotteryService lotteryService;
     private BindingResult bindingResult;
-    private RegistrationDTO registrationDTO;
+    private ValidateCodeDTO validateCodeDTO;
     private CodeValidator codeValidator;
     private LocalDateTime localDateTime;
 
@@ -40,13 +37,12 @@ class CodeValidatorTest {
     void setUp() {
         codeValidator = new CodeValidator(lotteryService);
 
-        registrationDTO = RegistrationDTO.builder()
-                .age(AGE)
+        validateCodeDTO = ValidateCodeDTO.builder()
                 .code(REG_CODE)
                 .lotteryId(LOTTERY_ID)
                 .email(EMAIL)
                 .build();
-        dataBinder = new DataBinder(registrationDTO);
+        dataBinder = new DataBinder(validateCodeDTO);
         bindingResult = dataBinder.getBindingResult();
     }
 
@@ -57,15 +53,15 @@ class CodeValidatorTest {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMYY");
         String formattedTime = localDateTime.format(formatter);
 
-        registrationDTO.setCode(formattedTime + "0712345678");
-        registrationDTO.setEmail("a@a.lv");
+        validateCodeDTO.setCode(formattedTime + "0712345678");
+        validateCodeDTO.setEmail("a@a.lv");
 
 
         when(lotteryService.getLotteryById(any())).thenReturn(Lottery.builder()
                 .startTimestamp(localDateTime)
                 .build());
 
-        codeValidator.validate(registrationDTO, bindingResult);
+        codeValidator.validate(validateCodeDTO, bindingResult);
 
         assertTrue(bindingResult.hasErrors());
     }
@@ -76,23 +72,23 @@ class CodeValidatorTest {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMYY");
         String formattedTime = localDateTime.format(formatter);
 
-        registrationDTO.setCode(formattedTime + "0612345678");
-        registrationDTO.setEmail("a@a.lv");
+        validateCodeDTO.setCode(formattedTime + "0612345678");
+        validateCodeDTO.setEmail("a@a.lv");
 
         when(lotteryService.getLotteryById(any())).thenReturn(Lottery.builder()
                 .startTimestamp(localDateTime.minusMonths(22L))
                 .build());
 
-        codeValidator.validate(registrationDTO, bindingResult);
+        codeValidator.validate(validateCodeDTO, bindingResult);
         assertTrue(bindingResult.hasErrors());
     }
 
 
     @Test
     void validateShouldFail_DueToTooSmallCode() {
-        registrationDTO.setCode("123456789012345");
+        validateCodeDTO.setCode("123456789012345");
 
-        codeValidator.validate(registrationDTO, bindingResult);
+        codeValidator.validate(validateCodeDTO, bindingResult);
         assertTrue(bindingResult.hasErrors());
     }
 
@@ -102,13 +98,13 @@ class CodeValidatorTest {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMYY");
         String formattedTime = localDateTime.format(formatter);
 
-        registrationDTO.setCode(formattedTime + "0612345678");
-        registrationDTO.setEmail("a@a.lv");
-        registrationDTO.setLotteryId(123L);
+        validateCodeDTO.setCode(formattedTime + "0612345678");
+        validateCodeDTO.setEmail("a@a.lv");
+        validateCodeDTO.setLotteryId(123L);
 
-        when(lotteryService.getLotteryById(registrationDTO.getLotteryId())).thenThrow(LotteryException.class);
+        when(lotteryService.getLotteryById(validateCodeDTO.getLotteryId())).thenThrow(LotteryException.class);
 
-        codeValidator.validate(registrationDTO, bindingResult);
+        codeValidator.validate(validateCodeDTO, bindingResult);
         assertTrue(bindingResult.hasErrors());
     }
 
@@ -118,14 +114,14 @@ class CodeValidatorTest {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMYY");
         String formattedTime = localDateTime.format(formatter);
 
-        registrationDTO.setCode(formattedTime + "0612345678");
-        registrationDTO.setEmail("a@a.lv");
+        validateCodeDTO.setCode(formattedTime + "0612345678");
+        validateCodeDTO.setEmail("a@a.lv");
 
         when(lotteryService.getLotteryById(any())).thenReturn(Lottery.builder()
                 .startTimestamp(localDateTime)
                 .build());
 
-        codeValidator.validate(registrationDTO, bindingResult);
+        codeValidator.validate(validateCodeDTO, bindingResult);
         assertFalse(bindingResult.hasErrors());
     }
 
@@ -135,14 +131,14 @@ class CodeValidatorTest {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMYY");
         String formattedTime = localDateTime.format(formatter);
 
-        registrationDTO.setCode(formattedTime + "1112345678");
-        registrationDTO.setEmail("aaaa@aaa.co");
+        validateCodeDTO.setCode(formattedTime + "1112345678");
+        validateCodeDTO.setEmail("aaaa@aaa.co");
 
         when(lotteryService.getLotteryById(any())).thenReturn(Lottery.builder()
                 .startTimestamp(localDateTime)
                 .build());
 
-        codeValidator.validate(registrationDTO, bindingResult);
+        codeValidator.validate(validateCodeDTO, bindingResult);
         assertFalse(bindingResult.hasErrors());
     }
 

@@ -1,5 +1,6 @@
 package lv.igors.lottery.code;
 
+import lv.igors.lottery.code.dto.CodeDTO;
 import lv.igors.lottery.statusResponse.StatusResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -25,8 +25,8 @@ public class Code {
     @Column(name = "owneremail")
     private String ownerEmail;
 
-
-    public boolean equalsWithoutDatabaseId(Object o) {
+    @Override
+    public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Code code = (Code) o;

@@ -2,6 +2,8 @@ package lv.igors.lottery.lottery;
 
 import lombok.RequiredArgsConstructor;
 import lv.igors.lottery.code.CodeValidator;
+import lv.igors.lottery.code.dto.ValidateCodeDTO;
+import lv.igors.lottery.lottery.dto.CheckStatusDTO;
 import lv.igors.lottery.lottery.dto.LotteryIdDTO;
 import lv.igors.lottery.lottery.dto.NewLotteryDTO;
 import lv.igors.lottery.lottery.dto.RegistrationDTO;
@@ -10,7 +12,6 @@ import lv.igors.lottery.statusResponse.StatusResponse;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.DataBinder;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -18,10 +19,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -89,33 +86,19 @@ public class LotteryController {
 
     @GetMapping("/status")
     public String checkWinnerStatus(Model model,
-                                    @NotNull(message = "Id must not be null")
-                                    @RequestParam("lotteryId") Long id,
+                                    @Valid CheckStatusDTO checkStatusDTO,
+                                    BindingResult bindingResult) {
 
-                                    @Email(message = "Email is invalid")
-                                    @NotEmpty(message = "email cannot be empty or null")
-                                    @RequestParam("email") String email,
-
-                                    @NotEmpty(message = "Code cannot be empty or null")
-                                    @RequestParam("code") String code,
-
-                                    @NotNull(message = "Age cannot be null")
-                                    @Min(value = 21, message = "Must be 21 or older")
-                                    @RequestParam("age") Byte age) {
-
-        RegistrationDTO registrationDTO = RegistrationDTO.builder()
-                .code(code)
-                .email(email)
-                .lotteryId(id)
-                .age(age)
+        ValidateCodeDTO validateCodeDTO = ValidateCodeDTO.builder()
+                .code(checkStatusDTO.getCode())
+                .email(checkStatusDTO.getEmail())
+                .lotteryId(checkStatusDTO.getLotteryId())
                 .build();
 
-        DataBinder dataBinder = new DataBinder(registrationDTO);
+        codeValidator.validate(validateCodeDTO, bindingResult);
 
-        codeValidator.validate(registrationDTO, dataBinder.getBindingResult());
-
-        if (isValidationError(model, dataBinder.getBindingResult())) return "error";
-        StatusResponse statusResponse = lotteryService.getWinnerStatus(registrationDTO);
+        if (isValidationError(model, bindingResult)) return "error";
+        StatusResponse statusResponse = lotteryService.getWinnerStatus(checkStatusDTO);
         if (isServiceError(model, statusResponse)) return "error";
         model.addAttribute("statusResponse", statusResponse);
         return "check-win";

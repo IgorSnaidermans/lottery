@@ -2,7 +2,7 @@ package lv.igors.lottery.lottery;
 
 import lombok.RequiredArgsConstructor;
 import lv.igors.lottery.code.Code;
-import lv.igors.lottery.code.CodeDTO;
+import lv.igors.lottery.code.dto.CodeDTO;
 import lv.igors.lottery.code.CodeDoesntExistException;
 import lv.igors.lottery.code.CodeService;
 import lv.igors.lottery.lottery.dto.*;
@@ -27,11 +27,10 @@ public class LotteryService {
     private final LotteryDAO lotteryDAO;
     private final CodeService codeService;
     private final Clock clock;
-    private LocalDateTime currentTimeStamp;
 
 
     public LocalDateTime getCurrentTimeStamp() {
-        return currentTimeStamp = LocalDateTime.now(clock);
+        return LocalDateTime.now(clock);
     }
 
     public StatusResponse newLottery(NewLotteryDTO newLotteryDTO) {
@@ -189,7 +188,7 @@ public class LotteryService {
                 .build();
     }
 
-    public StatusResponse getWinnerStatus(RegistrationDTO registrationDTO) {
+    public StatusResponse getWinnerStatus(CheckStatusDTO registrationDTO) {
         LOGGER.info("Getting winner status for" + registrationDTO);
         try {
             Lottery lottery = getLotteryById(registrationDTO.getLotteryId());
