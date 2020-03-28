@@ -1,12 +1,13 @@
 package lv.igors.lottery.lottery;
 
+import lv.igors.lottery.code.Code;
+import lv.igors.lottery.code.CodeService;
 import lv.igors.lottery.lottery.dto.CheckStatusDTO;
 import lv.igors.lottery.lottery.dto.LotteryIdDTO;
 import lv.igors.lottery.lottery.dto.NewLotteryDTO;
 import lv.igors.lottery.lottery.dto.RegistrationDTO;
 import lv.igors.lottery.statusResponse.StatusResponse;
-import lv.igors.lottery.code.Code;
-import lv.igors.lottery.code.CodeService;
+import lv.igors.lottery.statusResponse.StatusResponseManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,38 +20,39 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class LotteryServiceTest {
-    @Mock
-    private LotteryDAO lotteryDAO;
-    @Mock
-    private CodeService codeService;
-
-    private LotteryService lotteryService;
-    private RegistrationDTO registrationDTO;
-    private CheckStatusDTO checkStatusDTO;
-    private Lottery validLottery;
-    private NewLotteryDTO newLotteryDTO;
-    private LotteryIdDTO lotteryIdDTO;
     final String REG_CODE = "0502981392837465";
     final String EMAIL = "some@mail.com";
     final Byte AGE = 21;
     final Long LOTTERY_ID = 0L;
     final String TITLE = "title";
     final int LIMIT = 1000;
-
+    @Spy
+    List<Code> spiedList = new ArrayList<>();
+    @Mock
+    private LotteryEntityManager lotteryEntityManager;
+    @Mock
+    private CodeService codeService;
+    private StatusResponseManager statusResponseManager;
+    private LotteryService lotteryService;
+    private RegistrationDTO registrationDTO;
+    private CheckStatusDTO checkStatusDTO;
+    private Lottery validLottery;
+    private NewLotteryDTO newLotteryDTO;
+    private LotteryIdDTO lotteryIdDTO;
 
     @BeforeEach
     void setUp() {
+        statusResponseManager = new StatusResponseManager();
         String time = "1998-05-02T10:15:30Z";
         Clock clock = Clock.fixed(Instant.parse(time), ZoneId.of("UTC"));
-        lotteryService = new LotteryService(lotteryDAO, codeService, clock);
+        lotteryService = new LotteryService(codeService, lotteryEntityManager, clock, statusResponseManager);
 
         newLotteryDTO = NewLotteryDTO.builder()
                 .limit(LIMIT)
@@ -81,10 +83,10 @@ class LotteryServiceTest {
     }
 
     @Test
-    void newLottery_ShouldSuccessfullyCreate(){
+    void newLottery_ShouldSuccessfullyCreate() throws LotteryException {
         final String TITLE = "Title";
 
-        when(lotteryDAO.findByTitle(any())).thenReturn(Optional.empty());
+        when(lotteryEntityManager.findByTitle(any())).thenThrow(LotteryException.class);
 
         StatusResponse statusResponse = lotteryService.newLottery(newLotteryDTO);
 
@@ -93,52 +95,52 @@ class LotteryServiceTest {
     }
 
     @Test
-    void ShouldThrowException_BecauseNoLotteryFoundInRepository(){
-        when(lotteryDAO.findById(any()))
-                .thenReturn(Optional.empty());
+    void ShouldThrowException_BecauseNoLotteryFoundInRepository() throws LotteryException {
+        when(lotteryEntityManager.getLotteryById(any()))
+                .thenThrow(LotteryException.class);
 
         assertThrows(LotteryException.class, () -> lotteryService.getLotteryById(any()));
     }
 
     @Test
-    void stopRegistration_ShouldSucceed(){
-        when(lotteryDAO.findById(any()))
-                .thenReturn(Optional.ofNullable(validLottery));
+    void stopRegistration_ShouldSucceed() throws LotteryException {
+        when(lotteryEntityManager.getLotteryById(any()))
+                .thenReturn(validLottery);
 
-        StatusResponse statusResponse = lotteryService.stopRegistration(lotteryIdDTO);
+        StatusResponse statusResponse = lotteryService.endRegistration(lotteryIdDTO);
         assertEquals("OK", statusResponse.getStatus());
         assertNull(statusResponse.getReason());
     }
 
     @Test
-    void stopRegistration_ShouldFailDueToAlreadyStopped(){
+    void stopRegistration_ShouldFailDueToAlreadyStopped() throws LotteryException {
         validLottery.setActive(false);
-        when(lotteryDAO.findById(any()))
-                .thenReturn(Optional.ofNullable(validLottery));
+        when(lotteryEntityManager.getLotteryById(any()))
+                .thenReturn(validLottery);
 
-        StatusResponse statusResponse = lotteryService.stopRegistration(lotteryIdDTO);
+        StatusResponse statusResponse = lotteryService.endRegistration(lotteryIdDTO);
         assertEquals("Fail", statusResponse.getStatus());
         assertEquals("Registration is inactive", statusResponse.getReason());
     }
 
     @Test
-    void newLotteryTitle_ShouldAlreadyExist(){
+    void newLotteryTitle_ShouldAlreadyExist() throws LotteryException {
         final String TITLE = "Title";
         Lottery lottery = Lottery.builder().title(TITLE).build();
 
-        when(lotteryDAO.findByTitle(any())).thenReturn(Optional.ofNullable(lottery));
+        when(lotteryEntityManager.findByTitle(any())).thenReturn(lottery);
 
         StatusResponse statusResponse = lotteryService.newLottery(newLotteryDTO);
 
         assertEquals("Fail", statusResponse.getStatus());
-        assertEquals("This lottery title already exist", statusResponse.getReason());
+        assertEquals("Lottery title already exists", statusResponse.getReason());
         assertNull(statusResponse.getId());
     }
 
     @Test
-    void registerCode_ShouldPass(){
-        when(lotteryDAO.findById(any()))
-                .thenReturn(Optional.ofNullable(validLottery));
+    void registerCode_ShouldPass() throws LotteryException {
+        when(lotteryEntityManager.getLotteryById(any()))
+                .thenReturn(validLottery);
 
         when(codeService.addCode(any())).thenReturn(StatusResponse.builder()
                 .status("OK")
@@ -150,14 +152,14 @@ class LotteryServiceTest {
     }
 
     @Test
-    void registerCodeShouldNotPass_DueToTooManyParticipants(){
+    void registerCodeShouldNotPass_DueToTooManyParticipants() throws LotteryException {
         Lottery lottery = Lottery.builder()
                 .active(true)
                 .participantsLimit(1000)
                 .participants(1000)
                 .build();
 
-        when(lotteryDAO.findById(any())).thenReturn(Optional.ofNullable(lottery));
+        when(lotteryEntityManager.getLotteryById(any())).thenReturn(lottery);
 
         StatusResponse statusResponse = lotteryService.registerCode(registrationDTO);
 
@@ -166,14 +168,14 @@ class LotteryServiceTest {
     }
 
     @Test
-    void registerCodeShouldNotPass_DueToLotteryInactive(){
+    void registerCodeShouldNotPass_DueToLotteryInactive() throws LotteryException {
         Lottery lottery = Lottery.builder()
                 .active(false)
                 .participantsLimit(1000)
                 .participants(999)
                 .build();
 
-        when(lotteryDAO.findById(any())).thenReturn(Optional.ofNullable(lottery));
+        when(lotteryEntityManager.getLotteryById(any())).thenReturn(lottery);
 
         StatusResponse statusResponse = lotteryService.registerCode(registrationDTO);
 
@@ -181,16 +183,15 @@ class LotteryServiceTest {
         assertEquals("Registration is inactive", statusResponse.getReason());
     }
 
-
     @Test
-    void getWinnerStatus_ShouldReturnWin() {
+    void getWinnerStatus_ShouldReturnWin() throws LotteryException {
 
         validLottery.setWinnerCode(registrationDTO.getCode());
 
         when(codeService.checkWinnerCode(any(), any())).thenReturn(StatusResponse.builder()
                 .status("WIN")
                 .build());
-        when(lotteryDAO.findById(any())).thenReturn(Optional.ofNullable(validLottery));
+        when(lotteryEntityManager.getLotteryById(any())).thenReturn(validLottery);
 
         StatusResponse statusResponse = lotteryService.getWinnerStatus(checkStatusDTO);
 
@@ -198,11 +199,11 @@ class LotteryServiceTest {
     }
 
     @Test
-    void getWinnerStatus_ShouldReturnLose() {
+    void getWinnerStatus_ShouldReturnLose() throws LotteryException {
         validLottery.setWinnerCode(registrationDTO.getCode());
 
-        when(lotteryDAO.findById(any()))
-                .thenReturn(Optional.ofNullable(validLottery));
+        when(lotteryEntityManager.getLotteryById(any()))
+                .thenReturn(validLottery);
 
         when(codeService.checkWinnerCode(any(), any()))
                 .thenReturn(StatusResponse.builder()
@@ -215,22 +216,18 @@ class LotteryServiceTest {
     }
 
     @Test
-    void getWinnerStatus_ShouldReturnPending() {
-        when(lotteryDAO.findById(any())).thenReturn(Optional.ofNullable(validLottery));
+    void getWinnerStatus_ShouldReturnPending() throws LotteryException {
+        when(lotteryEntityManager.getLotteryById(any())).thenReturn(validLottery);
 
         StatusResponse statusResponse = lotteryService.getWinnerStatus(checkStatusDTO);
 
         assertEquals("PENDING", statusResponse.getStatus());
     }
 
-
-    @Spy
-    List<Code> spiedList = new ArrayList<>();
-
     @Test
-    void chooseWinner_ShouldReturnWinnerCode(){
+    void chooseWinner_ShouldReturnWinnerCode() throws LotteryException {
         validLottery.setActive(false);
-        when(lotteryDAO.findById(any())).thenReturn(Optional.ofNullable(validLottery));
+        when(lotteryEntityManager.getLotteryById(any())).thenReturn(validLottery);
         Code code = Code.builder()
                 .participatingCode(registrationDTO.getCode())
                 .lotteryId(registrationDTO.getLotteryId())
@@ -251,9 +248,9 @@ class LotteryServiceTest {
     }
 
     @Test
-    void chooseWinner_ShouldFailDueToActiveLottery(){
+    void chooseWinner_ShouldFailDueToActiveLottery() throws LotteryException {
         validLottery.setActive(true);
-        when(lotteryDAO.findById(any())).thenReturn(Optional.ofNullable(validLottery));
+        when(lotteryEntityManager.getLotteryById(any())).thenReturn(validLottery);
 
         StatusResponse statusResponse = lotteryService.chooseWinner(lotteryIdDTO);
 
@@ -262,10 +259,10 @@ class LotteryServiceTest {
     }
 
     @Test
-    void chooseWinner_ShouldFailDueToFinishedLottery(){
+    void chooseWinner_ShouldFailDueToFinishedLottery() throws LotteryException {
         validLottery.setActive(false);
         validLottery.setWinnerCode("123456789");
-        when(lotteryDAO.findById(any())).thenReturn(Optional.ofNullable(validLottery));
+        when(lotteryEntityManager.getLotteryById(any())).thenReturn(validLottery);
 
         StatusResponse statusResponse = lotteryService.chooseWinner(lotteryIdDTO);
 

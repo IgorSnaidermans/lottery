@@ -4,7 +4,6 @@ import lv.igors.lottery.code.dto.ValidateCodeDTO;
 import lv.igors.lottery.lottery.Lottery;
 import lv.igors.lottery.lottery.LotteryException;
 import lv.igors.lottery.lottery.LotteryService;
-import lv.igors.lottery.lottery.dto.CheckStatusDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,8 +15,10 @@ import org.springframework.validation.DataBinder;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CodeValidatorTest {
