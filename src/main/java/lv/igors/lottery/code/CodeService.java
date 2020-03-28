@@ -18,6 +18,7 @@ public class CodeService {
     private final CodeEntityManager codeEntityManager;
     private final StatusResponseManager statusResponseManager;
 
+
     public StatusResponse addCode(Code code) {
 
         if (!findSimilarCodes(code)) {
@@ -26,14 +27,15 @@ public class CodeService {
             return statusResponseManager.buildOk();
         }
         LOGGER.warn("Unsuccessful code save due to already exist" + code);
+
         return statusResponseManager.buildFailWithMessage(Responses.CODE_EXIST.getResponse());
     }
 
     private boolean findSimilarCodes(Code code) {
         try {
-            codeEntityManager.findCodeByParticipatingCodeAndLotteryId(code.getParticipatingCode(), code.getLotteryId());
+            Code codec = codeEntityManager.findCodeByParticipatingCodeAndLotteryId(code.getParticipatingCode(), code.getLotteryId());
             return true;
-        } catch (CodeDoesntExistException e){
+        } catch (CodeDoesntExistException e) {
             return false;
         }
 
@@ -61,18 +63,18 @@ public class CodeService {
 
     private Code buildCode(CodeDTO codeDTO) {
         return Code.builder()
-                    .ownerEmail(codeDTO.getEmail())
-                    .participatingCode(codeDTO.getCode())
-                    .lotteryId(codeDTO.getLotteryId())
-                    .build();
+                .ownerEmail(codeDTO.getEmail())
+                .participatingCode(codeDTO.getCode())
+                .lotteryId(codeDTO.getLotteryId())
+                .build();
     }
 
-    private boolean checkCodeOwner(Code code) throws CodeDoesntExistException {
-        LOGGER.info("Checking code owner for " + code);
-        String requestedCodeOwnerEmail = codeEntityManager.getCodeByParticipatingCodeAndLotteryId(code.getParticipatingCode(),
-                code.getLotteryId())
-                .getOwnerEmail();
-        return requestedCodeOwnerEmail.equals(code.getOwnerEmail());
+    private boolean checkCodeOwner(Code requestedCodeCredentials) throws CodeDoesntExistException {
+        LOGGER.info("Checking code owner for " + requestedCodeCredentials);
+        Code codeCredentials = codeEntityManager.getCodeByParticipatingCodeAndLotteryId(requestedCodeCredentials.getParticipatingCode(),
+                requestedCodeCredentials.getLotteryId());
+
+        return requestedCodeCredentials.getOwnerEmail().equals(codeCredentials.getOwnerEmail());
     }
 
     private StatusResponse checkWin(Code winnerCode, Code requestedCode) {
@@ -85,11 +87,11 @@ public class CodeService {
 
 
     public String getEmailByCodeAndLotteryId(String winnerCode, Long id) throws CodeDoesntExistException {
-        return codeEntityManager.getEmailByCodeAndLotteryId(winnerCode,id);
+        return codeEntityManager.getEmailByCodeAndLotteryId(winnerCode, id);
     }
 
     public Code getCodeByParticipatingCodeAndLotteryId(String winnerCode, Long id) throws CodeDoesntExistException {
-        return codeEntityManager.getCodeByParticipatingCodeAndLotteryId(winnerCode,id);
+        return codeEntityManager.getCodeByParticipatingCodeAndLotteryId(winnerCode, id);
     }
 
     public List<Code> getAllCodesByLotteryId(Long lotteryId) {
