@@ -11,6 +11,7 @@ public enum Responses {
     LOTTERY_STATUS_PENDING("PENDING"),
     LOTTERY_NON_EXIST("Lottery does not exist"),
     LOTTERY_NO_PARTICIPANTS("No participants in lottery"),
+    LOTTERY_TITLE_EXISTS("Lottery title already exists"),
     CODE_EXIST("Code already exists"),
     CODE_FOREIGN_CODE("The code is not yours"),
     CODE_WIN("WIN"),
