@@ -11,9 +11,8 @@ import java.util.Optional;
 
 @AllArgsConstructor
 public class CodeEntityManager {
-    private final CodeDAO codeDAO;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(CodeEntityManager.class);
+    private final CodeDAO codeDAO;
 
     public Code getCodeByParticipatingCodeAndLotteryId(String code, Long id) throws CodeDoesntExistException {
         LOGGER.info("Getting code information for code:" + code);
@@ -55,7 +54,7 @@ public class CodeEntityManager {
         }
     }
 
-    public void save(Code code){
+    public void save(Code code) {
         codeDAO.save(code);
     }
 }

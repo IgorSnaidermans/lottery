@@ -127,8 +127,8 @@ public class LotteryEntityManager {
     public Lottery findByTitle(String title) throws LotteryException {
         Optional<Lottery> possibleLottery = lotteryDAO.findByTitle(title);
         if (possibleLottery.isPresent()) {
-           return possibleLottery.get();
-        }else {
+            return possibleLottery.get();
+        } else {
             throw new LotteryException("No such Lottery");
         }
     }

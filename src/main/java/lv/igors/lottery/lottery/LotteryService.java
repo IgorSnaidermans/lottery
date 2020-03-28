@@ -48,10 +48,10 @@ public class LotteryService {
             lotteryEntityManager.findByTitle(newLotteryDTO.getTitle());
             LOGGER.warn("Create lottery failed due to title already exist for " + newLotteryDTO);
             return true;
-        } catch (LotteryException ignored) {
-
+        } catch (LotteryException e) {
+            return false;
         }
-        return false;
+
     }
 
     private Lottery buildNewLottery(NewLotteryDTO newLotteryDTO) {

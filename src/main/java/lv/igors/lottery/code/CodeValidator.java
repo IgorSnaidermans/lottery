@@ -4,7 +4,6 @@ package lv.igors.lottery.code;
 import lv.igors.lottery.code.dto.ValidateCodeDTO;
 import lv.igors.lottery.lottery.LotteryException;
 import lv.igors.lottery.lottery.LotteryService;
-import org.apache.tomcat.jni.Local;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
