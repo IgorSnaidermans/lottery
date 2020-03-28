@@ -42,7 +42,7 @@ public class LotteryRestController {
         if (isValidationError(bindingResult)) {
             return buildValidationError(bindingResult);
         }
-        StatusResponse statusResponse = lotteryService.stopRegistration(lotteryId);
+        StatusResponse statusResponse = lotteryService.endRegistration(lotteryId);
         if (isServiceError(statusResponse)) return new ResponseEntity<>(statusResponse,
                 HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>(statusResponse, HttpStatus.OK);
@@ -99,7 +99,7 @@ public class LotteryRestController {
 
     @GetMapping("/rest/stats")
     public ResponseEntity<List<StatisticsDTO>> getStatistics() {
-        return new ResponseEntity<>(lotteryService.getAllLotteryStatistics(), HttpStatus.OK);
+        return new ResponseEntity<>(lotteryService.getAllLotteryStatisticsDTO(), HttpStatus.OK);
     }
 
     private boolean isServiceError(StatusResponse statusResponse) {

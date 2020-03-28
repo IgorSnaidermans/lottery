@@ -53,7 +53,7 @@ public class LotteryController {
 
 
         if (isValidationError(model, bindingResult)) return "error";
-        StatusResponse statusResponse = lotteryService.stopRegistration(lotteryId);
+        StatusResponse statusResponse = lotteryService.endRegistration(lotteryId);
         if (isServiceError(model, statusResponse)) return ("error");
         return "redirect:/admin";
     }
@@ -106,7 +106,7 @@ public class LotteryController {
 
     @GetMapping("/stats")
     public String getStatistics(Model model) {
-        model.addAttribute("lotteries", lotteryService.getAllLotteryStatistics());
+        model.addAttribute("lotteries", lotteryService.getAllLotteryStatisticsDTO());
         return "statistics";
     }
 
