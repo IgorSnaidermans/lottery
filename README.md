@@ -2,8 +2,8 @@ Simple Spring boot application.
 
 It has:
 Logger,
-Spring Security (Both MVC and Rest API),
-JPA,
+Spring Security,
+Spring Data,
 Maven,
 JSP,
 Rest API,
