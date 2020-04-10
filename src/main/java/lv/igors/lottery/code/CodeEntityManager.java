@@ -4,12 +4,15 @@ import lombok.AllArgsConstructor;
 import lv.igors.lottery.statusResponse.Responses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @AllArgsConstructor
+@Component
 public class CodeEntityManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(CodeEntityManager.class);
     private final CodeDAO codeDAO;
