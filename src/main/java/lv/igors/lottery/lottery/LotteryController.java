@@ -126,7 +126,7 @@ public class LotteryController {
         return "lottery";
     }
 
-    @GetMapping("/")
+    @GetMapping("/index.html")
     public String homePage(Model model) {
         model.addAttribute("lotteries", lotteryService.getAllLotteriesToLotteryDTO());
         return "lotteries";
