@@ -15,7 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CodeService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CodeService.class);
-    private final CodeEntityManager codeEntityManager;
+    private final CodeDAOImpl codeDAOImpl;
     private final StatusResponseManager statusResponseManager;
 
 
@@ -23,7 +23,7 @@ public class CodeService {
 
         if (!findSimilarCodes(code)) {
             LOGGER.info("Code saved " + code);
-            codeEntityManager.save(code);
+            codeDAOImpl.save(code);
             return statusResponseManager.buildOk();
         }
         LOGGER.warn("Unsuccessful code save due to already exist" + code);
@@ -33,48 +33,14 @@ public class CodeService {
 
     private boolean findSimilarCodes(Code code) {
         try {
-            Code codec = codeEntityManager.findCodeByParticipatingCodeAndLotteryId(code.getParticipatingCode(), code.getLotteryId());
-            return true;
+            String possibleSimilarCode = codeDAOImpl
+                    .getCodeByParticipatingCodeAndLotteryId(code.getParticipatingCode(), code.getLottery().getId())
+                    .getParticipatingCode();
+            return code.getParticipatingCode().equals(possibleSimilarCode);
         } catch (CodeDoesntExistException e) {
             return false;
         }
 
-    }
-
-    public StatusResponse checkWinnerCode(CodeDTO codeDTO, String lotteryWinningCode) {
-        LOGGER.info("Checking winning status for " + codeDTO);
-
-        Code winnerCode;
-        Code requestedCode = buildCode(codeDTO);
-
-        try {
-            if (!checkCodeOwner(requestedCode)) {
-                LOGGER.warn("Foreign code was requested by " + codeDTO.toString());
-                return statusResponseManager.buildFailWithMessage(Responses.CODE_FOREIGN_CODE.getResponse());
-            }
-            winnerCode = codeEntityManager.getCodeByParticipatingCodeAndLotteryId(lotteryWinningCode,
-                    requestedCode.getLotteryId());
-        } catch (CodeDoesntExistException e) {
-            return statusResponseManager.buildFailWithMessage(e.getMessage());
-        }
-
-        return checkWin(winnerCode, requestedCode);
-    }
-
-    private Code buildCode(CodeDTO codeDTO) {
-        return Code.builder()
-                .ownerEmail(codeDTO.getEmail())
-                .participatingCode(codeDTO.getCode())
-                .lotteryId(codeDTO.getLotteryId())
-                .build();
-    }
-
-    private boolean checkCodeOwner(Code requestedCodeCredentials) throws CodeDoesntExistException {
-        LOGGER.info("Checking code owner for " + requestedCodeCredentials);
-        Code codeCredentials = codeEntityManager.getCodeByParticipatingCodeAndLotteryId(requestedCodeCredentials.getParticipatingCode(),
-                requestedCodeCredentials.getLotteryId());
-
-        return requestedCodeCredentials.getOwnerEmail().equals(codeCredentials.getOwnerEmail());
     }
 
     private StatusResponse checkWin(Code winnerCode, Code requestedCode) {
@@ -85,16 +51,35 @@ public class CodeService {
         }
     }
 
-
-    public String getEmailByCodeAndLotteryId(String winnerCode, Long id) throws CodeDoesntExistException {
-        return codeEntityManager.getEmailByCodeAndLotteryId(winnerCode, id);
-    }
-
     public Code getCodeByParticipatingCodeAndLotteryId(String winnerCode, Long id) throws CodeDoesntExistException {
-        return codeEntityManager.getCodeByParticipatingCodeAndLotteryId(winnerCode, id);
+        return codeDAOImpl.getCodeByParticipatingCodeAndLotteryId(winnerCode, id);
     }
 
     public List<Code> getAllCodesByLotteryId(Long lotteryId) {
-        return codeEntityManager.getAllCodesByLotteryId(lotteryId);
+            return codeDAOImpl.getAllCodesByLotteryId(lotteryId);
+    }
+
+    public StatusResponse checkWinnerCode(Code winnerCode, Code requestedCode) {
+        LOGGER.info("Checking winning status for " + requestedCode);
+
+        try {
+            if (!checkCodeOwner(requestedCode)) {
+                LOGGER.warn("Foreign code was requested by " + requestedCode);
+                return statusResponseManager.buildFailWithMessage(Responses.CODE_FOREIGN_CODE.getResponse());
+            }
+
+        } catch (CodeDoesntExistException e) {
+            return statusResponseManager.buildFailWithMessage(e.getMessage());
+        }
+
+        return checkWin(winnerCode, requestedCode);
+    }
+
+    private boolean checkCodeOwner(Code requestedCodeCredentials) throws CodeDoesntExistException {
+        LOGGER.info("Checking code owner for " + requestedCodeCredentials);
+        Code codeCredentials = codeDAOImpl.getCodeByParticipatingCodeAndLotteryId(requestedCodeCredentials.getParticipatingCode(),
+                requestedCodeCredentials.getLottery().getId());
+
+        return requestedCodeCredentials.getOwnerEmail().equals(codeCredentials.getOwnerEmail());
     }
 }
