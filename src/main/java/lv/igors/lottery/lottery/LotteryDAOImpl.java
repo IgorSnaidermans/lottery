@@ -1,34 +1,43 @@
 package lv.igors.lottery.lottery;
 
 import lombok.AllArgsConstructor;
-import lv.igors.lottery.code.CodeDoesntExistException;
-import lv.igors.lottery.code.CodeService;
 import lv.igors.lottery.lottery.dto.LotteryAdminDTO;
 import lv.igors.lottery.lottery.dto.LotteryDTO;
 import lv.igors.lottery.lottery.dto.StatisticsDTO;
 import lv.igors.lottery.statusResponse.Responses;
+import org.hibernate.Hibernate;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 
+import javax.persistence.NoResultException;
+import javax.transaction.Transactional;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@Service
+@Repository
 @AllArgsConstructor
-public class LotteryEntityManager {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LotteryEntityManager.class);
-    private final LotteryDAO lotteryDAO;
-    private final CodeService codeService;
+@Transactional
+public class LotteryDAOImpl implements LotteryDAO {
+    private static final Logger LOGGER = LoggerFactory.getLogger(LotteryDAOImpl.class);
+    SessionFactory sessionFactory;
 
+    @Override
     public List<LotteryDTO> getAllLotteriesToLotteryDTO() {
         LOGGER.info("Getting all lotteries for user");
-        List<LotteryDTO> lotteryList = new ArrayList<>();
+        Session session = sessionFactory.getCurrentSession();
+
+        List<Lottery> lotteryList = session.createQuery("from lotteries", Lottery.class).getResultList();
+        List<LotteryDTO> lotteryDTOS = new ArrayList<>();
+
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.YY HH:mm");
 
-        for (Lottery lottery : lotteryDAO.findAll()) {
+        for (Lottery lottery : lotteryList) {
             LotteryDTO lotteryDTO = LotteryDTO.builder()
                     .id(lottery.getId())
                     .active(lottery.isActive())
@@ -40,18 +49,21 @@ public class LotteryEntityManager {
                 lotteryDTO.setEndTimestamp(lottery.getEndTimestamp().format(dateTimeFormatter));
             }
 
-            lotteryList.add(lotteryDTO);
+            lotteryDTOS.add(lotteryDTO);
         }
 
-        return lotteryList;
+        return lotteryDTOS;
     }
 
+    @Override
     public List<LotteryAdminDTO> getAllLotteriesAdminDTO() {
         LOGGER.info("Getting all lotteries for admin");
-        List<LotteryAdminDTO> lotteryList = new ArrayList<>();
+        Session session = sessionFactory.getCurrentSession();
+        List<Lottery> lotteryList = session.createQuery("from lotteries", Lottery.class).getResultList();
+        List<LotteryAdminDTO> adminDTOS = new ArrayList<>();
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.YY HH:mm");
 
-        for (Lottery lottery : lotteryDAO.findAll()) {
+        for (Lottery lottery : lotteryList) {
 
             LotteryAdminDTO lotteryAdminDTO = LotteryAdminDTO.builder()
                     .startTimestampFormatted(lottery.getStartTimestamp().format(dateTimeFormatter))
@@ -63,35 +75,23 @@ public class LotteryEntityManager {
                     .winnerCode(lottery.getWinnerCode())
                     .build();
 
-            try {
-                lotteryAdminDTO.setWinnerEmail(codeService.getEmailByCodeAndLotteryId(lottery.getWinnerCode(),
-                        lottery.getId()));
-            } catch (CodeDoesntExistException ignored) {
-
+            if (null != lottery.getEndTimestamp()) {
+                lotteryAdminDTO.setEndTimestampFormatted(lottery.getEndTimestamp().format(dateTimeFormatter));
             }
-
-            if (null != lottery.getWinnerCode()) {
-                try {
-                    lottery.setWinnerCode(codeService.getCodeByParticipatingCodeAndLotteryId(lottery.getWinnerCode(),
-                            lottery.getId())
-                            .getOwnerEmail());
-                } catch (CodeDoesntExistException ignored) {
-                }
-
-                if (null != lottery.getEndTimestamp()) {
-                    lotteryAdminDTO.setEndTimestampFormatted(lottery.getEndTimestamp().format(dateTimeFormatter));
-                }
-            }
-
-            lotteryList.add(lotteryAdminDTO);
+            adminDTOS.add(lotteryAdminDTO);
         }
 
-        return lotteryList;
+
+        return adminDTOS;
     }
 
+
+    @Override
     public Lottery getLotteryById(Long id) throws LotteryException {
         LOGGER.info("Getting lottery #" + id);
-        Optional<Lottery> possibleLottery = lotteryDAO.findById(id);
+        Lottery lottery = sessionFactory.getCurrentSession().get(Lottery.class, id);
+
+        Optional<Lottery> possibleLottery = Optional.ofNullable(lottery);
 
         if (possibleLottery.isPresent()) {
             return possibleLottery.get();
@@ -101,12 +101,15 @@ public class LotteryEntityManager {
         }
     }
 
+    @Override
     public List<StatisticsDTO> getAllLotteryStatisticsDTO() {
         LOGGER.info("Getting lottery statistics");
+        Session session = sessionFactory.getCurrentSession();
+        List<Lottery> lotteryList = session.createQuery("from lotteries", Lottery.class).getResultList();
         List<StatisticsDTO> statisticsList = new ArrayList<>();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.YY HH:mm");
 
-        for (Lottery lottery : lotteryDAO.findAll()) {
+        for (Lottery lottery : lotteryList) {
             StatisticsDTO statisticsDTO = StatisticsDTO.builder()
                     .id(lottery.getId())
                     .title(lottery.getTitle())
@@ -124,16 +127,22 @@ public class LotteryEntityManager {
         return statisticsList;
     }
 
+    @Override
     public Lottery findByTitle(String title) throws LotteryException {
-        Optional<Lottery> possibleLottery = lotteryDAO.findByTitle(title);
-        if (possibleLottery.isPresent()) {
-            return possibleLottery.get();
-        } else {
+        Session session = sessionFactory.getCurrentSession();
+
+        Query<Lottery> query = session.createQuery("from lotteries l where l.title='" + title + "'", Lottery.class);
+
+        try{
+            return query.getSingleResult();
+        }catch (NoResultException e){
             throw new LotteryException("No such Lottery");
         }
     }
 
+    @Override
     public void save(Lottery lottery) {
-        lotteryDAO.save(lottery);
+        Session session = sessionFactory.getCurrentSession();
+        session.saveOrUpdate(lottery);
     }
 }

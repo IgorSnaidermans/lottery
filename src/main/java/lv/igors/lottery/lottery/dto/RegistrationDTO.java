@@ -20,7 +20,6 @@ public class RegistrationDTO {
     @NotNull(message = "Age may not be null")
     @Min(value = 21, message = "To participate, you should be not younger than 21 years old")
     @Max(value = 127, message = "Age cannot be more than 127")
-
     private Byte age;
     @NotEmpty(message = "Code may not be empty")
     private String code;

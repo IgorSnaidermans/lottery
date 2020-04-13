@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lv.igors.lottery.code.Code;
 
 @Builder
 @AllArgsConstructor
@@ -16,7 +17,6 @@ public class LotteryAdminDTO {
     private boolean active;
     private int participantsLimit;
     private int participants;
-    private String winnerCode;
+    private Code winnerCode;
     private String title;
-    private String winnerEmail;
 }
