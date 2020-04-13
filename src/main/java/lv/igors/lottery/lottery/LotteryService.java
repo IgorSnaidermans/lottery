@@ -3,15 +3,16 @@ package lv.igors.lottery.lottery;
 import lombok.RequiredArgsConstructor;
 import lv.igors.lottery.code.Code;
 import lv.igors.lottery.code.CodeService;
-import lv.igors.lottery.code.dto.CodeDTO;
 import lv.igors.lottery.lottery.dto.*;
 import lv.igors.lottery.statusResponse.Responses;
 import lv.igors.lottery.statusResponse.StatusResponse;
 import lv.igors.lottery.statusResponse.StatusResponseManager;
+import org.hibernate.Hibernate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,7 +23,7 @@ import java.util.Random;
 public class LotteryService {
     private static final Logger LOGGER = LoggerFactory.getLogger(LotteryService.class);
     private final CodeService codeService;
-    private final LotteryEntityManager lotteryEntityManager;
+    private final LotteryDAO lotteryDAO;
     private final Clock clock;
     private final StatusResponseManager statusResponseManager;
 
@@ -39,13 +40,13 @@ public class LotteryService {
 
         LOGGER.info("Created lottery successfully for " + newLotteryDTO);
         Lottery lottery = buildNewLottery(newLotteryDTO);
-        lotteryEntityManager.save(lottery);
+        lotteryDAO.save(lottery);
         return statusResponseManager.buildOkWithLotteryId(lottery.getId());
     }
 
     private boolean tryFindSimilarLotteryTitle(NewLotteryDTO newLotteryDTO) {
         try {
-            lotteryEntityManager.findByTitle(newLotteryDTO.getTitle());
+            lotteryDAO.findByTitle(newLotteryDTO.getTitle());
             LOGGER.warn("Create lottery failed due to title already exist for " + newLotteryDTO);
             return true;
         } catch (LotteryException e) {
@@ -63,27 +64,30 @@ public class LotteryService {
                 .build();
     }
 
+    @Transactional
     public StatusResponse registerCode(RegistrationDTO registrationDTO) {
         LOGGER.info("Registering code for " + registrationDTO);
         Lottery lottery;
 
         try {
-            lottery = lotteryEntityManager.getLotteryById(registrationDTO.getLotteryId());
+            lottery = lotteryDAO.getLotteryById(registrationDTO.getLotteryId());
+
             checkLotteryRegistrationPossibility(lottery, registrationDTO);
         } catch (LotteryException e) {
             return statusResponseManager.buildFailWithMessage(e.getMessage());
         }
 
-        Code code = buildCode(registrationDTO);
+        Code newRegistrationCode = buildCode(registrationDTO, lottery);
 
-        LOGGER.info("Code registration from " + registrationDTO.getEmail() + ".Code:"
+        LOGGER.info("Code registration from " + registrationDTO.getEmail() + ". Code:"
                 + registrationDTO.getCode() + ". Lottery #" + lottery.getId());
 
-        StatusResponse statusResponse = codeService.addCode(code);
+        StatusResponse statusResponse = codeService.addCode(newRegistrationCode);
 
         if (statusResponse.getStatus().equals(Responses.OK.getResponse())) {
             lottery.setParticipants(lottery.getParticipants() + 1);
-            lotteryEntityManager.save(lottery);
+            lottery.addCode(newRegistrationCode);
+            lotteryDAO.save(lottery);
         }
         return statusResponse;
     }
@@ -100,11 +104,11 @@ public class LotteryService {
         }
     }
 
-    private Code buildCode(RegistrationDTO registrationDTO) {
+    private Code buildCode(RegistrationDTO registrationDTO, Lottery lottery) {
         return Code.builder()
                 .participatingCode(registrationDTO.getCode())
                 .ownerEmail(registrationDTO.getEmail())
-                .lotteryId(registrationDTO.getLotteryId())
+                .lottery(lottery)
                 .build();
     }
 
@@ -113,7 +117,7 @@ public class LotteryService {
         Lottery lottery;
 
         try {
-            lottery = lotteryEntityManager.getLotteryById(lotteryId.getLotteryId());
+            lottery = lotteryDAO.getLotteryById(lotteryId.getLotteryId());
         } catch (LotteryException e) {
             return statusResponseManager.buildFailWithMessage(e.getMessage());
         }
@@ -131,26 +135,27 @@ public class LotteryService {
         LOGGER.info("Lottery #" + lottery.getId() + " stopped");
         lottery.setActive(false);
         lottery.setEndTimestamp(getCurrentTimeStamp());
-        lotteryEntityManager.save(lottery);
+        lotteryDAO.save(lottery);
     }
 
+    @Transactional
     public StatusResponse chooseWinner(LotteryIdDTO id) {
         LOGGER.info("Choosing winner for lottery #" + id);
         Lottery lottery;
 
         try {
-            lottery = lotteryEntityManager.getLotteryById(id.getLotteryId());
+            lottery = lotteryDAO.getLotteryById(id.getLotteryId());
             checkChooseWinnerPossibility(lottery);
         } catch (LotteryException e) {
             return statusResponseManager.buildFailWithMessage(e.getMessage());
         }
 
-        String winnerCode = determineWinner(id.getLotteryId());
+        Code winnerCode = determineWinner(lottery.getRegisteredCodes());
 
         LOGGER.info("Lottery #" + lottery.getId() + ". Chosen winner code: " + winnerCode);
         lottery.setWinnerCode(winnerCode);
-        lotteryEntityManager.save(lottery);
-        return statusResponseManager.buildOkWithWinnerCode(winnerCode);
+        lotteryDAO.save(lottery);
+        return statusResponseManager.buildOkWithWinnerCode(winnerCode.toString());
     }
 
     private void checkChooseWinnerPossibility(Lottery lottery) throws LotteryException {
@@ -166,10 +171,9 @@ public class LotteryService {
         }
     }
 
-    private String determineWinner(Long lotteryId) {
-        List<Code> participatingCodes = codeService.getAllCodesByLotteryId(lotteryId);
+    private Code determineWinner(List<Code> participatingCodes) {
         int winnerPosition = generateWinner(participatingCodes.size());
-        return participatingCodes.get(winnerPosition).getParticipatingCode();
+        return participatingCodes.get(winnerPosition);
     }
 
     private int generateWinner(int participatorCount) {
@@ -180,55 +184,48 @@ public class LotteryService {
     public StatusResponse getWinnerStatus(CheckStatusDTO registrationDTO) {
         LOGGER.info("Getting winner status for" + registrationDTO);
         Lottery lottery;
+
         try {
-            lottery = lotteryEntityManager.getLotteryById(registrationDTO.getLotteryId());
+            lottery = lotteryDAO.getLotteryById(registrationDTO.getLotteryId());
         } catch (LotteryException e) {
             return statusResponseManager.buildFailWithMessage(e.getMessage());
         }
 
-        String lotteryWinningCode = lottery.getWinnerCode();
-        if (checkWinnerExist(registrationDTO, lottery, lotteryWinningCode)) {
-            return statusResponseManager.buildWithMessage(Responses.LOTTERY_STATUS_PENDING.getResponse());
-        }
-
-        CodeDTO codeDTO = buildCode(registrationDTO, lottery);
-        LOGGER.info("Responded winner status. Lottery #" + lottery.getId() +
-                ". To " + registrationDTO.getEmail());
-        return codeService.checkWinnerCode(codeDTO, lotteryWinningCode);
-    }
-
-    private boolean checkWinnerExist(CheckStatusDTO registrationDTO, Lottery lottery, String lotteryWinningCode) {
+        Code lotteryWinningCode = lottery.getWinnerCode();
         if (null == lotteryWinningCode) {
             LOGGER.info("Responded winner is pending. Lottery #" + lottery.getId() +
                     ". To " + registrationDTO.getEmail());
-            return true;
+            return statusResponseManager.buildWithMessage(Responses.LOTTERY_STATUS_PENDING.getResponse());
         }
-        return false;
+
+        Code requestedCode = buildCode(registrationDTO, lottery);
+
+        LOGGER.info("Responded winner status. Lottery #" + lottery.getId() +
+                ". To " + registrationDTO.getEmail());
+        return codeService.checkWinnerCode(lottery.getWinnerCode(), requestedCode);
     }
 
-
-    private CodeDTO buildCode(CheckStatusDTO registrationDTO, Lottery lottery) {
-        return CodeDTO.builder()
-                .lotteryId(registrationDTO.getLotteryId())
-                .code(registrationDTO.getCode())
-                .email(registrationDTO.getEmail())
-                .lotteryStartTimestamp(lottery.getStartTimestamp())
+    private Code buildCode(CheckStatusDTO registrationDTO, Lottery lottery) {
+        return Code.builder()
+                .lottery(lottery)
+                .participatingCode(registrationDTO.getCode())
+                .ownerEmail(registrationDTO.getEmail())
                 .build();
     }
 
     public List<LotteryAdminDTO> getAllLotteriesAdminDTO() {
-        return lotteryEntityManager.getAllLotteriesAdminDTO();
+        return lotteryDAO.getAllLotteriesAdminDTO();
     }
 
     public List<StatisticsDTO> getAllLotteryStatisticsDTO() {
-        return lotteryEntityManager.getAllLotteryStatisticsDTO();
+        return lotteryDAO.getAllLotteryStatisticsDTO();
     }
 
     public Lottery getLotteryById(Long id) throws LotteryException {
-        return lotteryEntityManager.getLotteryById(id);
+        return lotteryDAO.getLotteryById(id);
     }
 
     public List<LotteryDTO> getAllLotteriesToLotteryDTO() {
-        return lotteryEntityManager.getAllLotteriesToLotteryDTO();
+        return lotteryDAO.getAllLotteriesToLotteryDTO();
     }
 }

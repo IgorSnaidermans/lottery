@@ -74,7 +74,14 @@ public class LotteryController {
                                     @Valid @ModelAttribute RegistrationDTO registrationDTO,
                                     BindingResult bindingResult) {
 
-        codeValidator.validate(registrationDTO, bindingResult);
+        ValidateCodeDTO validateCodeDTO = ValidateCodeDTO.builder()
+                .code(registrationDTO.getCode())
+                .email(registrationDTO.getEmail())
+                .lotteryId(registrationDTO.getLotteryId())
+                .build();
+
+
+        codeValidator.validate(validateCodeDTO, bindingResult);
 
         if (isValidationError(model, bindingResult)) {
             return "error";
