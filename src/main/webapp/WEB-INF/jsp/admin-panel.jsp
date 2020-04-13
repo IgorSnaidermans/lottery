@@ -79,9 +79,9 @@
                                         <br/>
                                         Limit: ${lotteryAdminDTO.participantsLimit}
                                         <br/>
-                                        Winner code: <c:if test="${!lotteryAdminDTO.winnerCode}">
-                                        ${lotteryAdminDTO.winnerCode}<br/>
-                                        Winner email: ${lotteryAdminDTO.winnerEmail}</c:if>
+                                        Winner code: <c:if test="${!lotteryAdminDTO.winnerCode.equals(null)}">
+                                        ${lotteryAdminDTO.winnerCode.participatingCode}<br/>
+                                        Winner email: ${lotteryAdminDTO.winnerCode.ownerEmail}</c:if>
                                         <br/>
                                         Started: ${lotteryAdminDTO.startTimestampFormatted}
                                         <br/>Ended: <c:if
