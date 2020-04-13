@@ -4,10 +4,25 @@ Basicaly a hobby project that i use to learn new skills.
 Stack: Spring boot, Spring Security, Hibernate, PostgreSQL, Maven, JSP, Rest API, JUnit, slf4j.
 
 Migrated to Hibernate from Spring data.<br/>
-**Last stable Spring data implemenation: commit 2d90a9e339f3daeffa444ce2359fe57460b506d5.**
+**Last stable Spring data implemenation: commit 2d90a9e339f3daeffa444ce2359fe57460b506d5.** <br/>
+Deployed application: https://lotteryhit.herokuapp.com
 
-**REST API DOCUMENTATION.**
+**DOCUMENTATION**
 ----
+
+**Code validation rules**
+----
+The code consists 3 parts: lottery start date, email letter count, 8 random numbers. <br/>
+Lottery start date format: DDMMYY <br/>
+Email letter count format: <10 letters - 0X, >10 letters XX <br/>
+Random number format: XXXXXXXX 
+
+* **Example**: <br/>
+  * Lottery started at 13.04.20 18:07.**
+  * Email: as@as.com
+  * 8 Random numbers: 12345678
+  * The code will be: 1304200912345678
+
 **Start new lottery**
 ----
   Creates a lottery and returns JSON data of successful/unsuccessful creation.
