@@ -1,7 +1,6 @@
 package lv.igors.lottery;
 
 import lombok.AllArgsConstructor;
-import org.apache.commons.dbcp2.BasicDataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;

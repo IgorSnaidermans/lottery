@@ -7,13 +7,11 @@ import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.NoResultException;
 import javax.transaction.Transactional;
 import java.util.List;
-import java.util.Optional;
 
 @AllArgsConstructor
 @Repository
@@ -36,11 +34,11 @@ public class CodeDAOImpl implements CodeDAO {
         Session session = sessionFactory.getCurrentSession();
         Query<Code> query =
                 session.createQuery("from codes c where c.lottery='" + lotteryId +
-                         "' and c.participatingCode='" + participatingCode + "'");
+                        "' and c.participatingCode='" + participatingCode + "'");
 
-        try{
+        try {
             return query.getSingleResult();
-        }catch (NoResultException e){
+        } catch (NoResultException e) {
             LOGGER.warn("Could not find code information for code:" + participatingCode + " & lotteryId=" + lotteryId);
             throw new CodeDoesntExistException(Responses.CODE_NON_EXIST.getResponse());
         }

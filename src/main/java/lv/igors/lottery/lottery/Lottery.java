@@ -28,7 +28,7 @@ public class Lottery {
     private int participants;
     @OneToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE,
             CascadeType.PERSIST, CascadeType.REFRESH})
-    @JoinColumn(name="winnerCodeId")
+    @JoinColumn(name = "winnerCodeId")
     private Code winnerCode;
     @Column(name = "starttimestamp")
     private LocalDateTime startTimestamp;

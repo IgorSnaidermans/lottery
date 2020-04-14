@@ -25,7 +25,7 @@ public class Code {
     private String ownerEmail;
     @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE,
             CascadeType.PERSIST, CascadeType.REFRESH})
-    @JoinColumn(name="lotteryid")
+    @JoinColumn(name = "lotteryid")
     private Lottery lottery;
 
     @Override

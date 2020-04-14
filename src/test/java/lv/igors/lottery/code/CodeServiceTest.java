@@ -1,6 +1,5 @@
 package lv.igors.lottery.code;
 
-import lv.igors.lottery.code.dto.CodeDTO;
 import lv.igors.lottery.lottery.Lottery;
 import lv.igors.lottery.statusResponse.StatusResponse;
 import lv.igors.lottery.statusResponse.StatusResponseManager;
@@ -20,13 +19,13 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class CodeServiceTest {
 
+    final int LIMIT = 1000;
     private final String EMAIL = "some@mail.com";
     private final Long LOTTERY_ID = 0L;
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("ddMMYY");
     LocalDateTime localDateTime = LocalDateTime.now();
     String lotteryStartDate = localDateTime.format(formatter);
     private final String REG_CODE = lotteryStartDate + "1392837465";
-    final int LIMIT = 1000;
     @Mock
     private CodeDAOImpl codeDAOImpl;
     private StatusResponseManager statusResponseManager;

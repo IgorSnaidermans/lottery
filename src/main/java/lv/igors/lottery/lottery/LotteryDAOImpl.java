@@ -5,7 +5,6 @@ import lv.igors.lottery.lottery.dto.LotteryAdminDTO;
 import lv.igors.lottery.lottery.dto.LotteryDTO;
 import lv.igors.lottery.lottery.dto.StatisticsDTO;
 import lv.igors.lottery.statusResponse.Responses;
-import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
@@ -133,9 +132,9 @@ public class LotteryDAOImpl implements LotteryDAO {
 
         Query<Lottery> query = session.createQuery("from lotteries l where l.title='" + title + "'", Lottery.class);
 
-        try{
+        try {
             return query.getSingleResult();
-        }catch (NoResultException e){
+        } catch (NoResultException e) {
             throw new LotteryException("No such Lottery");
         }
     }

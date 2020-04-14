@@ -1,7 +1,6 @@
 package lv.igors.lottery.code;
 
 import lombok.RequiredArgsConstructor;
-import lv.igors.lottery.code.dto.CodeDTO;
 import lv.igors.lottery.statusResponse.Responses;
 import lv.igors.lottery.statusResponse.StatusResponse;
 import lv.igors.lottery.statusResponse.StatusResponseManager;
@@ -58,7 +57,7 @@ public class CodeService {
     }
 
     public List<Code> getAllCodesByLotteryId(Long lotteryId) {
-            return codeDAOImpl.getAllCodesByLotteryId(lotteryId);
+        return codeDAOImpl.getAllCodesByLotteryId(lotteryId);
     }
 
     public StatusResponse checkWinnerCode(Code winnerCode, Code requestedCode) {
