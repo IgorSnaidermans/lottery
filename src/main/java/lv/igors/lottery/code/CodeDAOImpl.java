@@ -19,7 +19,7 @@ import java.util.Optional;
 @Repository
 public class CodeDAOImpl implements CodeDAO {
     private static final Logger LOGGER = LoggerFactory.getLogger(CodeDAOImpl.class);
-    SessionFactory sessionFactory;
+    private final SessionFactory sessionFactory;
 
     @Override
     @Transactional

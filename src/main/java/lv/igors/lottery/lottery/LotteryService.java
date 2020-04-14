@@ -20,6 +20,7 @@ import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class LotteryService {
     private static final Logger LOGGER = LoggerFactory.getLogger(LotteryService.class);
     private final CodeService codeService;
@@ -64,7 +65,6 @@ public class LotteryService {
                 .build();
     }
 
-    @Transactional
     public StatusResponse registerCode(RegistrationDTO registrationDTO) {
         LOGGER.info("Registering code for " + registrationDTO);
         Lottery lottery;

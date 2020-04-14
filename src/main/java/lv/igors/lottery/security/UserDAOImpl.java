@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 @AllArgsConstructor
 public class UserDAOImpl implements UserDAO {
-    SessionFactory sessionFactory;
+    private final SessionFactory sessionFactory;
 
     @Override
     @Transactional

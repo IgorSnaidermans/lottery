@@ -8,6 +8,7 @@ import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 
 import javax.sql.DataSource;
 import java.time.Clock;
+import java.time.format.DateTimeFormatter;
 import java.util.Properties;
 
 @Configuration
@@ -34,7 +35,12 @@ public class AppConfig {
     }
 
     @Bean
-    public LocalSessionFactoryBean sessionFactory(){
+    public DateTimeFormatter formatter() {
+        return DateTimeFormatter.ofPattern("dd.MM.YY HH:mm");
+    }
+
+    @Bean
+    public LocalSessionFactoryBean sessionFactory() {
         LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
         sessionFactory.setDataSource(dataSource());
         sessionFactory.setPackagesToScan("lv.igors.lottery");
@@ -44,7 +50,7 @@ public class AppConfig {
     }
 
     @Bean
-    public HibernateTransactionManager myTransactionManager(){
+    public HibernateTransactionManager myTransactionManager() {
         HibernateTransactionManager transactionManager = new HibernateTransactionManager();
         transactionManager.setSessionFactory(sessionFactory().getObject());
         return transactionManager;

@@ -26,6 +26,7 @@ import java.util.Optional;
 public class LotteryDAOImpl implements LotteryDAO {
     private static final Logger LOGGER = LoggerFactory.getLogger(LotteryDAOImpl.class);
     SessionFactory sessionFactory;
+    DateTimeFormatter formatter;
 
     @Override
     public List<LotteryDTO> getAllLotteriesToLotteryDTO() {
@@ -107,7 +108,6 @@ public class LotteryDAOImpl implements LotteryDAO {
         Session session = sessionFactory.getCurrentSession();
         List<Lottery> lotteryList = session.createQuery("from lotteries", Lottery.class).getResultList();
         List<StatisticsDTO> statisticsList = new ArrayList<>();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.YY HH:mm");
 
         for (Lottery lottery : lotteryList) {
             StatisticsDTO statisticsDTO = StatisticsDTO.builder()
