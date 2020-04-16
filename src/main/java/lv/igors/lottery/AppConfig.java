@@ -15,6 +15,7 @@ import java.util.Properties;
 @AllArgsConstructor
 public class AppConfig {
     DataSource dataSource;
+    Properties properties;
 
     @Bean
     public Clock clock() {
@@ -31,7 +32,7 @@ public class AppConfig {
         LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
         sessionFactory.setDataSource(dataSource);
         sessionFactory.setPackagesToScan("lv.igors.lottery");
-        sessionFactory.setHibernateProperties(hibernateProperties());
+        sessionFactory.setHibernateProperties(properties);
 
         return sessionFactory;
     }
@@ -41,15 +42,5 @@ public class AppConfig {
         HibernateTransactionManager transactionManager = new HibernateTransactionManager();
         transactionManager.setSessionFactory(sessionFactory().getObject());
         return transactionManager;
-    }
-
-    private Properties hibernateProperties() {
-        Properties hibernateProperties = new Properties();
-        hibernateProperties.setProperty(
-                "hibernate.show_sql", "true");
-        hibernateProperties.setProperty(
-                "hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
-
-        return hibernateProperties;
     }
 }
