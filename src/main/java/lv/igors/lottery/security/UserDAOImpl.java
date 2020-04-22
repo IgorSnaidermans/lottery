@@ -6,6 +6,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 
+import javax.persistence.NoResultException;
 import javax.transaction.Transactional;
 import java.util.Optional;
 
@@ -19,7 +20,11 @@ public class UserDAOImpl implements UserDAO {
     public Optional<User> findByName(String name) {
         Session session = sessionFactory.getCurrentSession();
 
+        try{
         Query<User> query = session.createQuery("from users u where u.name='" + name + "'");
-        return Optional.ofNullable(query.getSingleResult());
+        return Optional.ofNullable(query.getSingleResult());}
+        catch (NoResultException exception){
+            return Optional.empty();
+        }
     }
 }
