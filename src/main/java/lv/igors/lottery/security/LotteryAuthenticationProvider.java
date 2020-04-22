@@ -34,7 +34,7 @@ public class LotteryAuthenticationProvider implements AuthenticationProvider {
 
             if (encodedPasswordMatcher(requestedPassword, user.getPassword())) {
                 return new UsernamePasswordAuthenticationToken(
-                        user.getName(),
+                        user.getUsername(),
                         user.getPassword(),
                         List.of(new SimpleGrantedAuthority("ADMIN")));
             } else {

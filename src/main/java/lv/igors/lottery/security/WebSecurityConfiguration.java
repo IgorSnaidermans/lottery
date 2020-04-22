@@ -48,9 +48,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         protected void configure(HttpSecurity http) throws Exception {
             http.authorizeRequests()
                     .and()
-                    .csrf().disable()
                     .authenticationProvider(lotteryAuthenticationProvider)
-                    //.antMatcher("/admin/**")
                     .authorizeRequests()
                     .antMatchers("/", "/register", "/status", "/stats", "/lottery/**").permitAll()
                     .and()
@@ -59,6 +57,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
                     .and()
                     .formLogin()
                     .loginPage("/admin-login").permitAll()
+                    .loginProcessingUrl("/login").permitAll()
                     .defaultSuccessUrl("/admin")
                     .failureUrl("/admin-login?error=true")
                     .and()
