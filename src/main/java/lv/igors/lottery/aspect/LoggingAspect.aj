@@ -1,16 +1,15 @@
 package lv.igors.lottery.aspect;
 
-
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
-import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
-import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
 
-@Aspect
-@Component
-public class LoggingAspect {
+import java.util.Arrays;
+
+public aspect LoggingAspect {
+    LoggerContainer loggerContainer;
 
     @Pointcut("execution(* lv.igors.lottery.*.get*(..))")
     private void getters() {
@@ -22,19 +21,20 @@ public class LoggingAspect {
 
     @Pointcut("execution(* lv.igors.lottery.*.*(..))")
     private void beforeMethodAspect() {
+
     }
 
-    @AfterThrowing(throwing = "exc", pointcut = "execution(* lv.igors.lottery.*.*(..))")
+    @AfterThrowing(value = "execution(* lv.igors.lottery.*.*(..))", throwing = "exc")
     public void throwsExc(JoinPoint joinPoint, Throwable exc) {
 
     }
 
     @Before("beforeMethodAspect() && !(getters() || setters())")
-    public void aspect(JoinPoint joinPoint) {
+    public void logBeforeMethod(JoinPoint joinPoint) {
         Object[] arguments = joinPoint.getArgs();
+        String methodName = joinPoint.getSignature().toString();
+        Logger LOGGER = loggerContainer.findLogger();
 
-
+        LOGGER.info("Exec= " + methodName + ". Args= " + Arrays.toString(arguments));
     }
-
-
 }
