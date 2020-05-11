@@ -2,10 +2,7 @@ package lv.igors.lottery.logger;
 
 import lombok.AllArgsConstructor;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.AfterThrowing;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
-import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.annotation.*;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
@@ -46,8 +43,13 @@ public class LoggerAspect {
     }
 
     @AfterThrowing(value = "appFlow()", throwing = "exc")
-    public void throwsExc(JoinPoint joinPoint, Throwable exc) {
+    public void logException(JoinPoint joinPoint, Throwable exc) {
+        Object[] arguments = joinPoint.getArgs();
+        String methodName = joinPoint.getSignature().getName();
+        Logger LOGGER = loggerContainer.findLogger(joinPoint.getTarget().getClass());
 
+        LOGGER.warn("Exception thrown: " + methodName + ". Args: "
+                + Arrays.toString(arguments) + " " + exc.getClass().getSimpleName());
     }
 
     @Before("appFlow()")
@@ -57,5 +59,15 @@ public class LoggerAspect {
         Logger LOGGER = loggerContainer.findLogger(joinPoint.getTarget().getClass());
 
         LOGGER.info("Exec: " + methodName + ". Args: " + Arrays.toString(arguments));
+    }
+
+    @AfterReturning(pointcut = "appFlow()", returning = "result", argNames = "joinPoint,result")
+    public void logAfterMethodReturn(JoinPoint joinPoint, Object result) {
+        Object[] arguments = joinPoint.getArgs();
+        String methodName = joinPoint.getSignature().getName();
+        Logger LOGGER = loggerContainer.findLogger(joinPoint.getTarget().getClass());
+
+        LOGGER.info("Exec completed: " + methodName + ". Args: " + Arrays.toString(arguments) +
+                ". Returned:" + result);
     }
 }
