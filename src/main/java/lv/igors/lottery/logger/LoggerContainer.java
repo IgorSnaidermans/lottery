@@ -4,14 +4,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Component
 public class LoggerContainer {
-    Logger logger = LoggerFactory.getLogger(getClass());
-    List<Logger> loggerList = Collections.singletonList(logger);
+    List<Logger> loggerList = new ArrayList<>();
 
     public Logger findLogger(Class clazz) {
         Optional<Logger> optionalLogger = scanLoggerList(clazz);
