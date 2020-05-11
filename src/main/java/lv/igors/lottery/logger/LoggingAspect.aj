@@ -1,4 +1,4 @@
-package lv.igors.lottery.aspect;
+package lv.igors.lottery.logger;
 
 import lombok.AllArgsConstructor;
 import org.aspectj.lang.JoinPoint;

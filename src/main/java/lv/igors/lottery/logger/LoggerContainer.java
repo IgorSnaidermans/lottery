@@ -1,4 +1,4 @@
-package lv.igors.lottery.aspect;
+package lv.igors.lottery.logger;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
