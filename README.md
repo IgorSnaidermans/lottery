@@ -1,7 +1,7 @@
 Simple Spring boot application.<br/>
 Basicaly a hobby project that i use to learn new skills.
 
-Stack: Spring boot, Spring Security, Hibernate, PostgreSQL, Maven, JSP, Rest API, JUnit, slf4j.<br/>
+Stack: Spring boot, Spring Security, Hibernate, PostgreSQL, Maven, JSP, Rest API, JUnit, slf4j, AspectJ<br/>
 Docker: openjdk13 enviroment.
 
 Migrated to Hibernate from Spring data.<br/>
