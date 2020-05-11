@@ -1,13 +1,17 @@
 package lv.igors.lottery.aspect;
 
+import lombok.AllArgsConstructor;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.slf4j.Logger;
+import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 
+@AllArgsConstructor
+@Component
 public aspect LoggingAspect {
     LoggerContainer loggerContainer;
 
@@ -33,7 +37,7 @@ public aspect LoggingAspect {
     public void logBeforeMethod(JoinPoint joinPoint) {
         Object[] arguments = joinPoint.getArgs();
         String methodName = joinPoint.getSignature().toString();
-        Logger LOGGER = loggerContainer.findLogger();
+        Logger LOGGER = loggerContainer.findLogger(joinPoint.getClass());
 
         LOGGER.info("Exec= " + methodName + ". Args= " + Arrays.toString(arguments));
     }
