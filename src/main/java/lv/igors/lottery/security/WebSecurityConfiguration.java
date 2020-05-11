@@ -49,6 +49,7 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
             http.authorizeRequests()
                     .and()
                     .authenticationProvider(lotteryAuthenticationProvider)
+                    .csrf().disable()
                     .authorizeRequests()
                     .antMatchers("/", "/register", "/status", "/stats", "/lottery/**").permitAll()
                     .and()

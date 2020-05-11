@@ -28,22 +28,20 @@
                     </div>
                     <div class="modal-body">
                         <form action="/admin/start-registration" method="post">
-                            <input type="hidden" name="lotteryId" value="${lotteryAdminDTO.id}">
                             <div class="form-group">
                                 <input required="required" name="title" class="form-control" placeholder="Enter title">
                             </div>
                             <div class="form-group">
                                 <input required="required" name="limit" class="form-control" placeholder="Enter limit">
                             </div>
-                            <button type="submit" class="btn btn-primary">Create</button>
-
+                            <button type="submit" class="btn btn-primary" formmethod="post">Create</button>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="row">
-            <c:forEach items="${lotteries}" var="lotteryAdminDTO">
+            <div class="row">
+                <c:forEach items="${lotteries}" var="lotteryAdminDTO">
                 <%-- Cards --%>
                 <div class="card" style="width: 18rem;">
                     <div class="card-body">
