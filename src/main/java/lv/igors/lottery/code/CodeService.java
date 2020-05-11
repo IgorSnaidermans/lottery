@@ -4,8 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lv.igors.lottery.statusResponse.Responses;
 import lv.igors.lottery.statusResponse.StatusResponse;
 import lv.igors.lottery.statusResponse.StatusResponseManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -15,19 +13,15 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional
 public class CodeService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CodeService.class);
     private final CodeDAOImpl codeDAOImpl;
     private final StatusResponseManager statusResponseManager;
-
 
     public StatusResponse addCode(Code code) {
 
         if (!findSimilarCodes(code)) {
-            LOGGER.info("Code saved " + code);
             codeDAOImpl.save(code);
             return statusResponseManager.buildOk();
         }
-        LOGGER.warn("Unsuccessful code save due to already exist" + code);
 
         return statusResponseManager.buildFailWithMessage(Responses.CODE_EXIST.getResponse());
     }
@@ -61,11 +55,9 @@ public class CodeService {
     }
 
     public StatusResponse checkWinnerCode(Code winnerCode, Code requestedCode) {
-        LOGGER.info("Checking winning status for " + requestedCode);
 
         try {
             if (!checkCodeOwner(requestedCode)) {
-                LOGGER.warn("Foreign code was requested by " + requestedCode);
                 return statusResponseManager.buildFailWithMessage(Responses.CODE_FOREIGN_CODE.getResponse());
             }
 
@@ -77,7 +69,6 @@ public class CodeService {
     }
 
     private boolean checkCodeOwner(Code requestedCodeCredentials) throws CodeDoesntExistException {
-        LOGGER.info("Checking code owner for " + requestedCodeCredentials);
         Code codeCredentials = codeDAOImpl.getCodeByParticipatingCodeAndLotteryId(requestedCodeCredentials.getParticipatingCode(),
                 requestedCodeCredentials.getLottery().getId());
 

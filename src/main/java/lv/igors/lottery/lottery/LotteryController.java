@@ -80,7 +80,6 @@ public class LotteryController {
                 .lotteryId(registrationDTO.getLotteryId())
                 .build();
 
-
         codeValidator.validate(validateCodeDTO, bindingResult);
 
         if (isValidationError(model, bindingResult)) {

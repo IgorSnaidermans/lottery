@@ -4,8 +4,6 @@ package lv.igors.lottery.code;
 import lv.igors.lottery.code.dto.ValidateCodeDTO;
 import lv.igors.lottery.lottery.LotteryException;
 import lv.igors.lottery.lottery.LotteryService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
@@ -15,7 +13,6 @@ import java.time.format.DateTimeFormatter;
 
 @Component
 public class CodeValidator implements Validator {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CodeValidator.class);
     LotteryService lotteryService;
 
     public CodeValidator(LotteryService lotteryService) {
@@ -31,7 +28,6 @@ public class CodeValidator implements Validator {
     public void validate(Object target, Errors errors) {
         ValidateCodeDTO validateCodeDTO = (ValidateCodeDTO) target;
 
-        LOGGER.info("Validating code " + validateCodeDTO);
 
         if (!onlyNumbersCheck(errors, validateCodeDTO)) return;
 
@@ -48,10 +44,8 @@ public class CodeValidator implements Validator {
         String lotteryStartDate = lotteryStartTimeStamp.format(formatter);
 
         if (!datePart.equals(lotteryStartDate)) {
-            LOGGER.warn("Code did not pass validation lottery start date doesn't match " + validateCodeDTO);
             errors.rejectValue("code", "lottery start date", "invalid code");
         } else if (!emailPart.equals(emailLetterCount(validateCodeDTO.getEmail()))) {
-            LOGGER.warn("Code did not pass validation email letters doesn't match " + validateCodeDTO);
             errors.rejectValue("code", "email letters", "invalid code");
         }
     }
@@ -79,7 +73,6 @@ public class CodeValidator implements Validator {
 
     private boolean codeLengthCheck(Errors errors, ValidateCodeDTO validateCodeDTO) {
         if (validateCodeDTO.getCode().length() != 16) {
-            LOGGER.warn("Could not validate code - too small " + validateCodeDTO);
             errors.rejectValue("code", "min", "invalid code");
             return false;
         }
@@ -88,7 +81,6 @@ public class CodeValidator implements Validator {
 
     private boolean onlyNumbersCheck(Errors errors, ValidateCodeDTO validateCodeDTO) {
         if (!validateCodeDTO.getCode().matches("[0-9]+")) {
-            LOGGER.warn("Could not validate code - letter detected " + validateCodeDTO);
             errors.rejectValue("code", "numsonly", "invalid code");
             return false;
         }

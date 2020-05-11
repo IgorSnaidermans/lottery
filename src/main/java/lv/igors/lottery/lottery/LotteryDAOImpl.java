@@ -8,8 +8,6 @@ import lv.igors.lottery.statusResponse.Responses;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.NoResultException;
@@ -23,13 +21,11 @@ import java.util.Optional;
 @AllArgsConstructor
 @Transactional
 public class LotteryDAOImpl implements LotteryDAO {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LotteryDAOImpl.class);
     SessionFactory sessionFactory;
     DateTimeFormatter formatter;
 
     @Override
     public List<LotteryDTO> getAllLotteriesToLotteryDTO() {
-        LOGGER.info("Getting all lotteries for user");
         Session session = sessionFactory.getCurrentSession();
 
         List<Lottery> lotteryList = session.createQuery("from lotteries", Lottery.class).getResultList();
@@ -57,7 +53,6 @@ public class LotteryDAOImpl implements LotteryDAO {
 
     @Override
     public List<LotteryAdminDTO> getAllLotteriesAdminDTO() {
-        LOGGER.info("Getting all lotteries for admin");
         Session session = sessionFactory.getCurrentSession();
         List<Lottery> lotteryList = session.createQuery("from lotteries", Lottery.class).getResultList();
         List<LotteryAdminDTO> adminDTOS = new ArrayList<>();
@@ -88,7 +83,6 @@ public class LotteryDAOImpl implements LotteryDAO {
 
     @Override
     public Lottery getLotteryById(Long id) throws LotteryException {
-        LOGGER.info("Getting lottery #" + id);
         Lottery lottery = sessionFactory.getCurrentSession().get(Lottery.class, id);
 
         Optional<Lottery> possibleLottery = Optional.ofNullable(lottery);
@@ -96,14 +90,12 @@ public class LotteryDAOImpl implements LotteryDAO {
         if (possibleLottery.isPresent()) {
             return possibleLottery.get();
         } else {
-            LOGGER.warn("Could not find lottery #" + id);
             throw new LotteryException(Responses.LOTTERY_NON_EXIST.getResponse());
         }
     }
 
     @Override
     public List<StatisticsDTO> getAllLotteryStatisticsDTO() {
-        LOGGER.info("Getting lottery statistics");
         Session session = sessionFactory.getCurrentSession();
         List<Lottery> lotteryList = session.createQuery("from lotteries", Lottery.class).getResultList();
         List<StatisticsDTO> statisticsList = new ArrayList<>();

@@ -20,10 +20,10 @@ public class UserDAOImpl implements UserDAO {
     public Optional<User> findByName(String name) {
         Session session = sessionFactory.getCurrentSession();
 
-        try{
-        Query<User> query = session.createQuery("from users u where u.name='" + name + "'");
-        return Optional.ofNullable(query.getSingleResult());}
-        catch (NoResultException exception){
+        try {
+            Query<User> query = session.createQuery("from users u where u.username='" + name + "'");
+            return Optional.ofNullable(query.getSingleResult());
+        } catch (NoResultException exception) {
             return Optional.empty();
         }
     }

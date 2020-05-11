@@ -7,8 +7,6 @@ import lv.igors.lottery.lottery.dto.*;
 import lv.igors.lottery.statusResponse.Responses;
 import lv.igors.lottery.statusResponse.StatusResponse;
 import lv.igors.lottery.statusResponse.StatusResponseManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -21,7 +19,6 @@ import java.util.Random;
 @RequiredArgsConstructor
 @Transactional
 public class LotteryService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LotteryService.class);
     private final CodeService codeService;
     private final LotteryDAO lotteryDAO;
     private final Clock clock;
@@ -32,13 +29,11 @@ public class LotteryService {
     }
 
     public StatusResponse newLottery(NewLotteryDTO newLotteryDTO) {
-        LOGGER.info("Creating new lottery for " + newLotteryDTO);
 
         if (tryFindSimilarLotteryTitle(newLotteryDTO)) {
             return statusResponseManager.buildFailWithMessage(Responses.LOTTERY_TITLE_EXISTS.getResponse());
         }
 
-        LOGGER.info("Created lottery successfully for " + newLotteryDTO);
         Lottery lottery = buildNewLottery(newLotteryDTO);
         lotteryDAO.save(lottery);
         return statusResponseManager.buildOkWithLotteryId(lottery.getId());
@@ -47,7 +42,7 @@ public class LotteryService {
     private boolean tryFindSimilarLotteryTitle(NewLotteryDTO newLotteryDTO) {
         try {
             lotteryDAO.findByTitle(newLotteryDTO.getTitle());
-            LOGGER.warn("Create lottery failed due to title already exist for " + newLotteryDTO);
+
             return true;
         } catch (LotteryException e) {
             return false;
@@ -65,7 +60,6 @@ public class LotteryService {
     }
 
     public StatusResponse registerCode(RegistrationDTO registrationDTO) {
-        LOGGER.info("Registering code for " + registrationDTO);
         Lottery lottery;
 
         try {
@@ -78,8 +72,6 @@ public class LotteryService {
 
         Code newRegistrationCode = buildCode(registrationDTO, lottery);
 
-        LOGGER.info("Code registration from " + registrationDTO.getEmail() + ". Code:"
-                + registrationDTO.getCode() + ". Lottery #" + lottery.getId());
 
         StatusResponse statusResponse = codeService.addCode(newRegistrationCode);
 
@@ -93,12 +85,8 @@ public class LotteryService {
 
     private void checkLotteryRegistrationPossibility(Lottery lottery, RegistrationDTO registrationDTO) throws LotteryException {
         if (!lottery.isActive()) {
-            LOGGER.warn("Unsuccessful code register due to lottery inactive from " + registrationDTO.getEmail() +
-                    ". Lottery #" + registrationDTO.getLotteryId());
             throw new LotteryException(Responses.LOTTERY_REGISTER_INACTIVE.getResponse());
         } else if (lottery.getParticipants() >= lottery.getParticipantsLimit()) {
-            LOGGER.warn("Unsuccessful code register due to excess participants from " + registrationDTO.getEmail() +
-                    ". Lottery #" + registrationDTO.getLotteryId());
             throw new LotteryException(Responses.LOTTERY_EXCESS_PARTICIPANTS.getResponse());
         }
     }
@@ -112,7 +100,6 @@ public class LotteryService {
     }
 
     public StatusResponse endRegistration(LotteryIdDTO lotteryId) {
-        LOGGER.info("Stopping registration for " + lotteryId);
         Lottery lottery;
 
         try {
@@ -125,13 +112,11 @@ public class LotteryService {
             stopLotteryRegistration(lottery);
             return statusResponseManager.buildOk();
         } else {
-            LOGGER.warn("Unsuccessful lottery register stop due to already stopped. Lottery #" + lottery.getId());
             return statusResponseManager.buildFailWithMessage(Responses.LOTTERY_REGISTER_INACTIVE.getResponse());
         }
     }
 
     private void stopLotteryRegistration(Lottery lottery) {
-        LOGGER.info("Lottery #" + lottery.getId() + " stopped");
         lottery.setActive(false);
         lottery.setEndTimestamp(getCurrentTimeStamp());
         lotteryDAO.save(lottery);
@@ -139,7 +124,6 @@ public class LotteryService {
 
     @Transactional
     public StatusResponse chooseWinner(LotteryIdDTO id) {
-        LOGGER.info("Choosing winner for lottery #" + id);
         Lottery lottery;
 
         try {
@@ -151,7 +135,6 @@ public class LotteryService {
 
         Code winnerCode = determineWinner(lottery.getRegisteredCodes());
 
-        LOGGER.info("Lottery #" + lottery.getId() + ". Chosen winner code: " + winnerCode);
         lottery.setWinnerCode(winnerCode);
         lotteryDAO.save(lottery);
         return statusResponseManager.buildOkWithWinnerCode(winnerCode.toString());
@@ -159,13 +142,10 @@ public class LotteryService {
 
     private void checkChooseWinnerPossibility(Lottery lottery) throws LotteryException {
         if (lottery.isActive()) {
-            LOGGER.warn("Unsuccessful choose winner due to registration active. Lottery #" + lottery.getId());
             throw new LotteryException(Responses.LOTTERY_REGISTER_ACTIVE.getResponse());
         } else if (null != lottery.getWinnerCode()) {
-            LOGGER.warn("Unsuccessful choose winner due to winner chosen. Lottery #" + lottery.getId());
             throw new LotteryException(Responses.LOTTERY_FINISHED.getResponse());
         } else if (lottery.getParticipants() <= 0) {
-            LOGGER.warn("Unsuccessful choose winner due to no participants in it. Lottery #" + lottery.getId());
             throw new LotteryException(Responses.LOTTERY_NO_PARTICIPANTS.getResponse());
         }
     }
@@ -181,7 +161,6 @@ public class LotteryService {
     }
 
     public StatusResponse getWinnerStatus(CheckStatusDTO registrationDTO) {
-        LOGGER.info("Getting winner status for" + registrationDTO);
         Lottery lottery;
 
         try {
@@ -192,15 +171,12 @@ public class LotteryService {
 
         Code lotteryWinningCode = lottery.getWinnerCode();
         if (null == lotteryWinningCode) {
-            LOGGER.info("Responded winner is pending. Lottery #" + lottery.getId() +
-                    ". To " + registrationDTO.getEmail());
             return statusResponseManager.buildWithMessage(Responses.LOTTERY_STATUS_PENDING.getResponse());
         }
 
         Code requestedCode = buildCode(registrationDTO, lottery);
 
-        LOGGER.info("Responded winner status. Lottery #" + lottery.getId() +
-                ". To " + registrationDTO.getEmail());
+
         return codeService.checkWinnerCode(lottery.getWinnerCode(), requestedCode);
     }
 
